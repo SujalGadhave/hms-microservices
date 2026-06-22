@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hms-config
+  namespace: hms
+data:
+  EUREKA_DEFAULT_ZONE: http://discovery-server:8761/eureka
+  KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+  REDIS_HOST: redis
+  REDIS_PORT: "6379"
+  DB_HOST: postgres
+  DB_PORT: "5432"
+  CONFIG_GIT_URI: https://github.com/SujalGadhave/hms-config-repo

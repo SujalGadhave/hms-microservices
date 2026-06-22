@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: ${DB_USERNAME:-hms_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-hms_db}
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--maxmemory", "256mb", "--maxmemory-policy", "allkeys-lru"]
+    ports:
+      - "6379:6379"
+
+  kafka:
+    image: bitnami/kafka:latest
+    environment:
+      - KAFKA_CFG_NODE_ID=0
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+    ports:
+      - "9092:9092"
+
+  discovery-server:
+    build: backend/discovery-server
+    ports:
+      - "8761:8761"
+
+  api-gateway:
+    build: backend/api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - discovery-server
+
+  auth-service:
+    build: backend/auth-service
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hms_db
+    depends_on:
+      - postgres
+      - discovery-server
+
+  patient-service:
+    build: backend/patient-service
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hms_db
+    depends_on:
+      - postgres
+      - discovery-server
+
+  doctor-service:
+    build: backend/doctor-service
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hms_db
+    depends_on:
+      - postgres
+      - discovery-server
+
+  appointment-service:
+    build: backend/appointment-service
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hms_db
+    depends_on:
+      - postgres
+      - discovery-server
+
+  pharmacy-service:
+    build: backend/pharmacy-service
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hms_db
+    depends_on:
+      - postgres
+      - discovery-server
+
+  frontend:
+    build: frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - api-gateway

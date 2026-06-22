@@ -1,0 +1,35 @@
+# Java / Maven build output
+**/target/
+.mvn/wrapper/maven-wrapper.jar
+
+# Node / Frontend build output
+**/node_modules/
+**/dist/
+**/dist-ssr/
+*.local
+
+# IDE / Editor configurations
+.idea/
+.vscode/
+*.iws
+*.iml
+*.ipr
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+
+# Local Env / Config files
+.env
+.env*.local
+
+# System/Local text files
+tree.txt
+tree_utf8.txt
+clean_tree.txt
+clean_tree_cmd.txt
+clean_tree_utf8.txt
+tree_output.txt
+tree_output_utf8.txt

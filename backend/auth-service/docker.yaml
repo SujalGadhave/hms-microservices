@@ -1,0 +1,46 @@
+version: '3.9'
+
+services:
+
+  postgres:
+    image: postgres:16
+    container_name: hms-postgres
+
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  discovery-server:
+    build: ../backend/discovery-server
+
+    ports:
+      - "8761:8761"
+
+  config-server:
+    build: ../backend/config-server
+
+    ports:
+      - "8888:8888"
+
+    depends_on:
+      - discovery-server
+
+  auth-service:
+    build: ../backend/auth-service
+
+    ports:
+      - "8081:8081"
+
+    depends_on:
+      - postgres
+      - discovery-server
+      - config-server
+
+volumes:
+  postgres_data:
