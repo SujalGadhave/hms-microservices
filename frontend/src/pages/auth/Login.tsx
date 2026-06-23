@@ -67,7 +67,7 @@ const Login = () => {
             Access the Astraea Hospital Management System
           </Typography>
           
-          <Box component="form" onSubmit={(e: React.FormEvent<HTMLBoxElement>) => { e.preventDefault(); handleSignIn(); }} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+          <Box component="form" onSubmit={(e: React.FormEvent<HTMLFormElement>) => { e.preventDefault(); handleSignIn(); }} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
             <TextField 
               label="Email Address" 
               variant="outlined" 
@@ -88,7 +88,7 @@ const Login = () => {
               onKeyDown={handleKeyDown}
               error={!!error}
               helperText={error}
-              inputProps={{ 'aria-label': 'Password', 'aria-describedby': 'login-error' }}
+              slotProps={{ htmlInput: { 'aria-label': 'Password', 'aria-describedby': 'login-error' } }}
             />
             
             <Button 

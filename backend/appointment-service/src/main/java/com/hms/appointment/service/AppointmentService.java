@@ -14,6 +14,7 @@ import com.hms.common.exception.BusinessException;
 import com.hms.appointment.mapper.AppointmentMapper;
 import com.hms.appointment.repository.AppointmentRepository;
 import com.hms.common.util.CorrelationIdUtil;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
@@ -94,6 +95,8 @@ public class AppointmentService {
                 throw new BusinessException("Patient not found");
             }
             return patient;
+        } catch (feign.FeignException.NotFound ex) {
+            throw new BusinessException("Patient not found");
         } catch (Exception ex) {
             throw new BusinessException("Patient validation failed: " + ex.getMessage());
         }
@@ -112,7 +115,7 @@ public class AppointmentService {
     @Cacheable(value = "appointments", key = "#id")
     public AppointmentResponse getAppointment(String id) {
         Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(() -> new BusinessException("Appointment not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Appointment not found"));
 
         return appointmentMapper.toResponse(appointment);
     }
@@ -121,7 +124,7 @@ public class AppointmentService {
     @Transactional
     public AppointmentResponse cancelAppointment(String id) {
         Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(() -> new BusinessException("Appointment not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Appointment not found"));
 
         if (appointment.getStatus() == AppointmentStatus.CANCELED) {
             throw new BusinessException("Appointment canceled");
@@ -148,7 +151,7 @@ public class AppointmentService {
     @Transactional
     public AppointmentResponse rescheduleAppointment(String id, LocalDateTime newTime) {
         Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(() -> new BusinessException("Appointment not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Appointment not found"));
 
         validateAppointmentTime(newTime);
         validateDoctorSlot(appointment.getDoctorId(), newTime);

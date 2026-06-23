@@ -34,7 +34,8 @@ class AnalyticsServiceApplicationTests {
 
         analyticsService.incrementAppointments();
 
-        verify(repository, times(2)).save(any(DailyMetric.class));
+        verify(repository, times(1)).save(any(DailyMetric.class));
+        verify(repository, times(1)).incrementAppointmentCount(LocalDate.now());
     }
 
     @Test
@@ -48,11 +49,11 @@ class AnalyticsServiceApplicationTests {
                 .totalRevenue(BigDecimal.TEN)
                 .build();
         when(repository.findByMetricDate(LocalDate.now())).thenReturn(Optional.of(metric));
-        when(repository.save(any(DailyMetric.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         analyticsService.addRevenue(new BigDecimal("15.50"));
 
-        verify(repository).save(metric);
+        verify(repository, times(0)).save(any(DailyMetric.class));
+        verify(repository, times(1)).addRevenue(new BigDecimal("15.50"), LocalDate.now());
     }
 
 }

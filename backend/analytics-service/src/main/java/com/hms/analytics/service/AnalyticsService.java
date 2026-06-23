@@ -21,33 +21,20 @@ public class AnalyticsService {
 
     @Transactional
     public void incrementAppointments() {
-
-        DailyMetric metric =
-                getOrCreateTodayMetric();
-
-        metric.setAppointmentCount(
-                metric.getAppointmentCount() + 1
-        );
-
-        repository.save(metric);
+        getOrCreateTodayMetric();
+        repository.incrementAppointmentCount(LocalDate.now());
     }
 
     @Transactional
     public void incrementPatientRegistrations() {
-        DailyMetric metric = getOrCreateTodayMetric();
-        metric.setPatientRegistrations(metric.getPatientRegistrations() + 1);
-        repository.save(metric);
+        getOrCreateTodayMetric();
+        repository.incrementPatientRegistrations(LocalDate.now());
     }
 
     @Transactional
     public void addRevenue(BigDecimal amount) {
-        DailyMetric metric = getOrCreateTodayMetric();
-
-        metric.setTotalRevenue(
-                metric.getTotalRevenue().add(amount)
-        );
-
-        repository.save(metric);
+        getOrCreateTodayMetric();
+        repository.addRevenue(amount, LocalDate.now());
     }
 
     @Cacheable(value = "analytics.daily", key = "#from.toString().concat(':').concat(#to.toString())")

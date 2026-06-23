@@ -35,7 +35,7 @@ const AdminPatients = () => {
     gender: 'Male',
     phone: '',
     email: '',
-    status: 'Active' as const,
+    status: 'Active' as Patient['status'],
     room: 'OPD'
   });
 
@@ -192,7 +192,7 @@ const AdminPatients = () => {
                 type="number" 
                 fullWidth 
                 value={newPatient.age} 
-                inputProps={{ min: 0, max: 150, 'aria-label': 'Patient age' }}
+                slotProps={{ htmlInput: { min: 0, max: 150, 'aria-label': 'Patient age' } }}
                 onChange={(e) => setNewPatient({ ...newPatient, age: e.target.value })} 
               />
             </Grid>

@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.data.domain.PageRequest;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,7 +32,7 @@ public class MedicineService {
     }
 
     public List<MedicineResponse> getAllMedicines() {
-        return medicineRepository.findAll().stream()
+        return medicineRepository.findAll(PageRequest.of(0, 1000)).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }

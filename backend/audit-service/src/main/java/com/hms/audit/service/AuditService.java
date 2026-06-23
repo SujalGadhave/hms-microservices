@@ -18,10 +18,17 @@ public class AuditService {
     private final AuditLogRepository auditLogRepository;
 
     public void saveAudit(AuditEvent auditEvent) {
+        com.hms.audit.entity.AuditAction action;
+        try {
+            action = com.hms.audit.entity.AuditAction.valueOf(auditEvent.getAction());
+        } catch (Exception e) {
+            action = com.hms.audit.entity.AuditAction.UNKNOWN;
+        }
+
         AuditLog auditLog = AuditLog.builder()
                 .serviceName(auditEvent.getServiceName() == null ? "unknown-service" : auditEvent.getServiceName())
                 .entityId(auditEvent.getEntityId() == null ? "unknown-entity" : auditEvent.getEntityId())
-                .action(com.hms.audit.entity.AuditAction.valueOf(auditEvent.getAction()))
+                .action(action)
                 .performedBy(auditEvent.getPerformedBy() == null ? "system" : auditEvent.getPerformedBy())
                 .correlationId(auditEvent.getCorrelationId() == null ? "unknown" : auditEvent.getCorrelationId())
                 .details(auditEvent.getDetails())
@@ -37,4 +44,3 @@ public class AuditService {
     }
 
 }
-

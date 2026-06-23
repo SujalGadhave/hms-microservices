@@ -34,4 +34,7 @@ public class NotificationLog {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "retry_count", nullable = false)
+    private Integer retryCount = 0;
+
 }

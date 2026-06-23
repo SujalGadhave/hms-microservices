@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -21,6 +22,7 @@ public class EmailService {
 
     private final NotificationRepository notificationRepository;
 
+    @Async
     public void sendMail(String recipient, String subject, String body) {
         if (recipient == null || recipient.isBlank()) {
             throw new IllegalArgumentException("Recipient email is required");
@@ -76,6 +78,13 @@ public class EmailService {
     }
 
     private void sendStoredMessage(NotificationLog log) {
+        if (log.getRetryCount() != null && log.getRetryCount() >= 3) {
+            log.setStatus(NotificationStatus.FAILED);
+            // In a real system, you might set it to DEAD_LETTER here.
+            notificationRepository.save(log);
+            return;
+        }
+
         try {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(log.getRecipient());
@@ -85,6 +94,7 @@ public class EmailService {
             log.setStatus(NotificationStatus.SENT);
         } catch (Exception ex) {
             log.setStatus(NotificationStatus.FAILED);
+            log.setRetryCount((log.getRetryCount() == null ? 0 : log.getRetryCount()) + 1);
         }
         notificationRepository.save(log);
     }

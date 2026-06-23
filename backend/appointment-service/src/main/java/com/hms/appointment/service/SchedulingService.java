@@ -3,6 +3,7 @@ package com.hms.appointment.service;
 import com.hms.appointment.dto.AvailableSlotResponse;
 import com.hms.appointment.entity.DoctorAvailability;
 import com.hms.appointment.repository.*;
+import com.hms.common.exception.BusinessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,19 +20,10 @@ public class SchedulingService {
 
     private final DoctorLeaveRepository leaveRepository;
 
-    public List<AvailableSlotResponse> generateSlots(
+    public List<AvailableSlotResponse> generateSlots(String doctorId, LocalDate date) {
 
-            String doctorId, LocalDate date) {
-
-
-        leaveRepository.findByDoctorIdAndLeaveDate(
-                doctorId,
-                date
-        ).ifPresent(leave -> {
-
-            throw new RuntimeException(
-                    "Doctor unavailable due to leave"
-            );
+        leaveRepository.findByDoctorIdAndLeaveDate(doctorId, date).ifPresent(leave -> {
+            throw new BusinessException("Doctor unavailable due to leave");
         });
 
         List<DoctorAvailability> schedules = availabilityRepository
@@ -42,7 +34,6 @@ public class SchedulingService {
         for (DoctorAvailability schedule : schedules) {
 
             LocalTime current = schedule.getStartTime();
-
             LocalTime breakStart = schedule.getBreakStartTime();
             LocalTime breakEnd = schedule.getBreakEndTime();
             int duration = schedule.getSlotDurationMinutes();
@@ -63,13 +54,10 @@ public class SchedulingService {
                         )
                         .isPresent();
 
-                slots.add(
-
-                        AvailableSlotResponse
-                                .builder()
-                                .slotTime(slotDateTime)
-                                .booked(booked)
-                                .build());
+                slots.add(AvailableSlotResponse.builder()
+                        .slotTime(slotDateTime)
+                        .booked(booked)
+                        .build());
 
                 current = current.plusMinutes(duration);
             }

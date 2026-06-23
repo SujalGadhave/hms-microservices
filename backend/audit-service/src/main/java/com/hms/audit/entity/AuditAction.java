@@ -9,6 +9,7 @@ public enum AuditAction {
     LOGOUT,
     PAYMENT,
     APPOINTMENT_BOOKED,
-    APPOINTMENT_CANCELLED
+    APPOINTMENT_CANCELLED,
+    UNKNOWN
 
 }

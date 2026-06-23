@@ -5,10 +5,12 @@ import com.hms.doctor.dto.DoctorResponse;
 import com.hms.doctor.entity.Doctor;
 import com.hms.doctor.repository.DoctorRepository;
 import com.hms.common.exception.BusinessException;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.data.domain.PageRequest;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,14 +40,14 @@ public class DoctorService {
     }
 
     public List<DoctorResponse> getAllDoctors() {
-        return doctorRepository.findAll().stream()
+        return doctorRepository.findAll(PageRequest.of(0, 1000)).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
     public DoctorResponse getDoctorById(String id) {
         Doctor doctor = doctorRepository.findById(id)
-                .orElseThrow(() -> new BusinessException("Doctor not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Doctor not found"));
         return mapToResponse(doctor);
     }
 

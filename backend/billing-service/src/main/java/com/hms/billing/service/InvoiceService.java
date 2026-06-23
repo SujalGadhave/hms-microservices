@@ -10,6 +10,7 @@ import com.hms.billing.event.AuditEventProducer;
 import com.hms.billing.event.BillingEventProducer;
 import com.hms.billing.mapper.InvoiceMapper;
 import com.hms.billing.repository.InvoiceRepository;
+import com.hms.billing.util.PDFInvoiceGenerator;
 import com.hms.billing.util.TaxCalculator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -17,9 +18,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import jakarta.persistence.EntityNotFoundException;
+import com.hms.common.util.CorrelationIdUtil;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -61,7 +63,7 @@ public class InvoiceService {
                         .entityId(saved.getId())
                         .action("CREATE")
                         .performedBy("system")
-                        .correlationId(UUID.randomUUID().toString())
+                        .correlationId(CorrelationIdUtil.currentOrGenerate())
                         .details("Invoice generated for appointment " + saved.getAppointmentId())
                         .build()
         );
@@ -72,7 +74,7 @@ public class InvoiceService {
     @Transactional
     public InvoiceResponse markAsPaid(String id) {
         Invoice invoice = invoiceRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Invoice not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Invoice not found"));
 
         if (invoice.getStatus() == InvoiceStatus.PAID) {
             return invoiceMapper.toResponse(invoice);
@@ -97,7 +99,7 @@ public class InvoiceService {
                         .entityId(updated.getId())
                         .action("PAYMENT")
                         .performedBy("system")
-                        .correlationId(UUID.randomUUID().toString())
+                        .correlationId(CorrelationIdUtil.currentOrGenerate())
                         .details("Invoice marked as paid")
                         .build()
         );
@@ -109,7 +111,7 @@ public class InvoiceService {
     public InvoiceResponse getInvoice(String id) {
         return invoiceMapper.toResponse(
                 invoiceRepository.findById(id)
-                        .orElseThrow(() -> new RuntimeException("Invoice not found"))
+                        .orElseThrow(() -> new EntityNotFoundException("Invoice not found"))
         );
     }
 
@@ -117,6 +119,13 @@ public class InvoiceService {
     public Page<InvoiceResponse> getInvoices(int page, int size) {
         return invoiceRepository.findAllByOrderByCreatedAtDesc(PageRequest.of(page, size))
                 .map(invoiceMapper::toResponse);
+    }
+
+    @Transactional
+    public byte[] generatePdf(String id) {
+        Invoice invoice = invoiceRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Invoice not found"));
+        return PDFInvoiceGenerator.generate(invoice);
     }
 
 }
