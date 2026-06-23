@@ -11,6 +11,8 @@ const AdminAnalytics = () => {
           variant="outlined" 
           startIcon={<DownloadIcon />}
           sx={{ borderColor: 'rgba(255,255,255,0.15)', color: 'white' }}
+          disabled
+          title="PDF export coming soon"
         >
           Download PDF Report
         </Button>
@@ -36,11 +38,11 @@ const AdminAnalytics = () => {
               <Box sx={{ width: '100%', height: 280, position: 'relative' }}>
                 <svg viewBox="0 0 800 280" width="100%" height="100%">
                   <defs>
-                    <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+                    <linearGradient id="areaGradientChart1" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor="#0ea5e9" stopOpacity="0.4" />
                       <stop offset="100%" stopColor="#0ea5e9" stopOpacity="0.0" />
                     </linearGradient>
-                    <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
+                    <linearGradient id="lineGradientChart1" x1="0" y1="0" x2="1" y2="0">
                       <stop offset="0%" stopColor="#0ea5e9" />
                       <stop offset="100%" stopColor="#8b5cf6" />
                     </linearGradient>
@@ -55,14 +57,14 @@ const AdminAnalytics = () => {
                   {/* Area */}
                   <path 
                     d="M 50 250 L 50 190 Q 150 150 200 130 T 350 120 T 500 80 T 650 90 T 750 40 L 750 250 Z" 
-                    fill="url(#areaGradient)" 
+                    fill="url(#areaGradientChart1)" 
                   />
 
                   {/* Trend Line */}
                   <path 
                     d="M 50 190 Q 150 150 200 130 T 350 120 T 500 80 T 650 90 T 750 40" 
                     fill="none" 
-                    stroke="url(#lineGradient)" 
+                    stroke="url(#lineGradientChart1)" 
                     strokeWidth="4" 
                     strokeLinecap="round"
                   />
@@ -104,13 +106,19 @@ const AdminAnalytics = () => {
               {/* Pure SVG Doughnut Chart */}
               <Box sx={{ display: 'flex', justifyContent: 'center', my: 4, position: 'relative' }}>
                 <svg width="200" height="200" viewBox="0 0 200 200">
+                  <defs>
+                    <linearGradient id="occupancyGradient" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stopColor="#0ea5e9" />
+                      <stop offset="100%" stopColor="#8b5cf6" />
+                    </linearGradient>
+                  </defs>
                   <circle cx="100" cy="100" r="70" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="20" />
                   <circle 
                     cx="100" 
                     cy="100" 
                     r="70" 
                     fill="none" 
-                    stroke="url(#lineGradient)" 
+                    stroke="url(#occupancyGradient)" 
                     strokeWidth="20" 
                     strokeDasharray="440" 
                     strokeDashoffset="96" // ~78% occupancy

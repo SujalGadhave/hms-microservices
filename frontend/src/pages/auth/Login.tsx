@@ -1,40 +1,56 @@
 import React, { useState } from 'react';
-import { Box, Paper, Typography, TextField, Button, Fade, RadioGroup, FormControlLabel, Radio, CircularProgress } from '@mui/material';
+import { Box, Paper, Typography, TextField, Button, Fade, CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('admin@astraea.com');
-  const [password, setPassword] = useState('password');
-  const [role, setRole] = useState('admin');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSignIn = () => {
+  const handleSignIn = async () => {
+    if (!email.trim() || !password.trim()) {
+      setError('Email and password are required');
+      return;
+    }
+    // email format validation
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError('Enter a valid email address');
+      return;
+    }
+
     setLoading(true);
-    setTimeout(() => {
-      localStorage.setItem('userRole', role);
-      localStorage.setItem('userEmail', email);
-      setLoading(false);
-      if (role === 'admin') {
-        navigate('/admin');
-      } else if (role === 'doctor') {
-        navigate('/doctor');
-      } else {
-        navigate('/patient');
+    setError('');
+    try {
+      const response = await fetch('/api/v1/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        setError(data.message || 'Invalid credentials');
+        return;
       }
-    }, 1000);
+      const { accessToken, refreshToken } = await response.json();
+      
+      const payload = JSON.parse(atob(accessToken.split('.')[1]));
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('refreshToken', refreshToken);
+      localStorage.setItem('userRole', payload.role);
+      localStorage.setItem('userEmail', email);
+      navigate(payload.role === 'ROLE_ADMIN' || payload.role === 'admin' ? '/admin'
+             : payload.role === 'ROLE_DOCTOR' || payload.role === 'doctor' ? '/doctor' : '/patient');
+    } catch {
+      setError('Network error. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleRoleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setRole(val);
-    if (val === 'admin') {
-      setEmail('admin@astraea.com');
-    } else if (val === 'doctor') {
-      setEmail('dr.smith@astraea.com');
-    } else {
-      setEmail('john.doe@astraea.com');
-    }
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !loading) handleSignIn();
   };
 
   return (
@@ -51,47 +67,45 @@ const Login = () => {
             Access the Astraea Hospital Management System
           </Typography>
           
-          <Box sx={{ background: 'rgba(255,255,255,0.02)', p: 2, borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
-            <Typography variant="subtitle2" sx={{ color: '#0ea5e9', fontWeight: 600, mb: 1 }}>Simulate Portal Role</Typography>
-            <RadioGroup row value={role} onChange={handleRoleChange} sx={{ justifyContent: 'space-between' }}>
-              <FormControlLabel value="admin" control={<Radio size="small" color="primary" />} label={<Typography variant="body2">Admin</Typography>} />
-              <FormControlLabel value="doctor" control={<Radio size="small" color="secondary" />} label={<Typography variant="body2">Doctor</Typography>} />
-              <FormControlLabel value="patient" control={<Radio size="small" color="primary" />} label={<Typography variant="body2">Patient</Typography>} />
-            </RadioGroup>
+          <Box component="form" onSubmit={(e: React.FormEvent<HTMLBoxElement>) => { e.preventDefault(); handleSignIn(); }} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            <TextField 
+              label="Email Address" 
+              variant="outlined" 
+              fullWidth 
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={loading}
+              onKeyDown={handleKeyDown}
+            />
+            <TextField 
+              label="Password" 
+              type="password" 
+              variant="outlined" 
+              fullWidth 
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              disabled={loading}
+              onKeyDown={handleKeyDown}
+              error={!!error}
+              helperText={error}
+              inputProps={{ 'aria-label': 'Password', 'aria-describedby': 'login-error' }}
+            />
+            
+            <Button 
+              type="submit"
+              variant="contained" 
+              size="large" 
+              fullWidth 
+              disabled={loading}
+              sx={{ mt: 1, py: 1.5, background: 'linear-gradient(45deg, #0ea5e9, #8b5cf6)', position: 'relative' }}
+            >
+              {loading ? (
+                <CircularProgress size={24} sx={{ color: 'white' }} />
+              ) : (
+                'Sign In'
+              )}
+            </Button>
           </Box>
-          
-          <TextField 
-            label="Email Address" 
-            variant="outlined" 
-            fullWidth 
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            disabled={loading}
-          />
-          <TextField 
-            label="Password" 
-            type="password" 
-            variant="outlined" 
-            fullWidth 
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            disabled={loading}
-          />
-          
-          <Button 
-            variant="contained" 
-            size="large" 
-            fullWidth 
-            onClick={handleSignIn} 
-            disabled={loading}
-            sx={{ mt: 1, py: 1.5, background: 'linear-gradient(45deg, #0ea5e9, #8b5cf6)', position: 'relative' }}
-          >
-            {loading ? (
-              <CircularProgress size={24} sx={{ color: 'white' }} />
-            ) : (
-              'Sign In'
-            )}
-          </Button>
         </Paper>
       </Fade>
     </Box>

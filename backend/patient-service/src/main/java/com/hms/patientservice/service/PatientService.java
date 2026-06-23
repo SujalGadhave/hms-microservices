@@ -11,6 +11,7 @@ import com.hms.patientservice.event.PatientEventProducer;
 import com.hms.patientservice.mapper.PatientMapper;
 import com.hms.patientservice.repository.PatientRepository;
 import com.hms.common.util.CorrelationIdUtil;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
@@ -30,6 +31,7 @@ public class PatientService {
     private final PatientMapper mapper;
 
     // [HIGH-14] Added @Transactional: if Kafka publish fails after DB save, the transaction rolls back.
+    @CacheEvict(value = "patients", allEntries = true)
     @Transactional
     public PatientResponse createPatient(PatientRequest patientRequest) {
         if (patientRepository.existsByEmailAndActiveTrue(patientRequest.getEmail())) {
@@ -75,7 +77,7 @@ public class PatientService {
                 PageRequest.of(page, size);
 
         return (search == null || search.isBlank()
-                ? patientRepository.findByFirstNameContainingIgnoreCaseAndActiveTrue("", pageable)
+                ? patientRepository.findAllByActiveTrue(pageable)
                 : patientRepository.searchPatients(search, pageable))
                 .map(mapper::toResponse);
     }
@@ -86,12 +88,12 @@ public class PatientService {
         Patient patient =
                 patientRepository.findById(id)
                         .orElseThrow(() ->
-                                new BusinessException("Patient Not Found"));
+                                new EntityNotFoundException("Patient not found: " + id));
 
         return mapper.toResponse(patient);
     }
 
-    @CacheEvict(value = "patients", key = "#id")
+    @CacheEvict(value = "patients", allEntries = true)
     @Transactional  // [HIGH-14] Added @Transactional: ensures DB and audit event are atomic.
     public void softDeletePatient(String id) {
 

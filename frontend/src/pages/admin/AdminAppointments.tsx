@@ -27,29 +27,27 @@ const initialAppointments: Appointment[] = [
 const AdminAppointments = () => {
   const [appointments, setAppointments] = useState<Appointment[]>(initialAppointments);
   const [search, setSearch] = useState('');
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [selectedAptId, setSelectedAptId] = useState<string | null>(null);
+  const [menuState, setMenuState] = useState<{ anchor: HTMLElement; aptId: string } | null>(null);
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>, id: string) => {
-    setAnchorEl(event.currentTarget);
-    setSelectedAptId(id);
+    setMenuState({ anchor: event.currentTarget, aptId: id });
   };
 
   const handleMenuClose = () => {
-    setAnchorEl(null);
-    setSelectedAptId(null);
+    setMenuState(null);
   };
 
   const handleStatusChange = (status: 'Confirmed' | 'Pending' | 'Cancelled') => {
-    if (!selectedAptId) return;
-    setAppointments(appointments.map(apt => 
-      apt.id === selectedAptId ? { ...apt, status } : apt
-    ));
+    if (!menuState?.aptId) return;
+    const targetId = menuState.aptId;
+    setAppointments(prev =>
+      prev.map(apt => apt.id === targetId ? { ...apt, status } : apt)
+    );
     handleMenuClose();
   };
 
-  const filteredAppointments = appointments.filter(apt => 
-    apt.patientName.toLowerCase().includes(search.toLowerCase()) || 
+  const filteredAppointments = appointments.filter(apt =>
+    apt.patientName.toLowerCase().includes(search.toLowerCase()) ||
     apt.doctorName.toLowerCase().includes(search.toLowerCase()) ||
     apt.id.toLowerCase().includes(search.toLowerCase())
   );
@@ -133,8 +131,8 @@ const AdminAppointments = () => {
       </Card>
 
       <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
+        anchorEl={menuState?.anchor}
+        open={Boolean(menuState)}
         onClose={handleMenuClose}
       >
         <MenuItem onClick={() => handleStatusChange('Confirmed')}>

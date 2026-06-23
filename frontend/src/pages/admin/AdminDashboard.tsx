@@ -6,9 +6,9 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import { useNavigate } from 'react-router-dom';
 
 const stats = [
-  { title: 'Total Patients', value: '12,450', diff: '+2.5% this week', icon: <PeopleIcon sx={{ fontSize: 32, color: '#0ea5e9' }} />, color: '#0ea5e9' },
-  { title: 'Active Doctors', value: '450', diff: '98% on duty', icon: <LocalHospitalIcon sx={{ fontSize: 32, color: '#8b5cf6' }} />, color: '#8b5cf6' },
-  { title: 'Today Appointments', value: '320', diff: '+12.4% vs yesterday', icon: <AssessmentIcon sx={{ fontSize: 32, color: '#10b981' }} />, color: '#10b981' },
+  { title: 'Total Patients', value: '12,450', diff: '+2.5% this week', Icon: PeopleIcon, color: '#0ea5e9' },
+  { title: 'Active Doctors', value: '450', diff: '98% on duty', Icon: LocalHospitalIcon, color: '#8b5cf6' },
+  { title: 'Today Appointments', value: '320', diff: '+12.4% vs yesterday', Icon: AssessmentIcon, color: '#10b981' },
 ];
 
 const recentActivity = [
@@ -29,12 +29,12 @@ const AdminDashboard = () => {
 
       {/* Metrics Row */}
       <Grid container spacing={4}>
-        {stats.map((stat, i) => (
-          <Grid size={{ xs: 12, md: 4 }} key={i}>
+        {stats.map((stat) => (
+          <Grid size={{ xs: 12, md: 4 }} key={stat.title}>
             <Card sx={{ background: 'rgba(30, 41, 59, 0.4)' }}>
               <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 3, p: 4 }}>
                 <Box sx={{ p: 2, borderRadius: '16px', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  {stat.icon}
+                  <stat.Icon sx={{ fontSize: 32, color: stat.color }} />
                 </Box>
                 <Box>
                   <Typography variant="body2" sx={{ color: '#94a3b8', mb: 0.5 }}>{stat.title}</Typography>
@@ -96,8 +96,8 @@ const AdminDashboard = () => {
             <CardContent sx={{ p: 4 }}>
               <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>Recent Activity Feed</Typography>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-                {recentActivity.map((activity, index) => (
-                  <Box key={index} sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
+                {recentActivity.map((activity) => (
+                  <Box key={`${activity.time}-${activity.type}`} sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
                     <Box sx={{ minWidth: 70 }}>
                       <Typography variant="caption" sx={{ color: '#64748b' }}>{activity.time}</Typography>
                     </Box>

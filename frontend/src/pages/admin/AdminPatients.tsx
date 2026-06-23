@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Box, Typography, Card, CardContent, TextField, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, IconButton, InputAdornment, Dialog, DialogTitle, DialogContent, DialogActions, Grid } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
@@ -28,6 +28,7 @@ const AdminPatients = () => {
   const [patients, setPatients] = useState<Patient[]>(initialPatients);
   const [search, setSearch] = useState('');
   const [open, setOpen] = useState(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [newPatient, setNewPatient] = useState({
     name: '',
     age: '',
@@ -38,15 +39,18 @@ const AdminPatients = () => {
     room: 'OPD'
   });
 
-  const filteredPatients = patients.filter(p => 
-    p.name.toLowerCase().includes(search.toLowerCase()) || 
-    p.email.toLowerCase().includes(search.toLowerCase())
+  const filteredPatients = useMemo(() =>
+    patients.filter(p =>
+      p.name.toLowerCase().includes(search.toLowerCase()) ||
+      p.email.toLowerCase().includes(search.toLowerCase())
+    ),
+    [patients, search]
   );
 
   const handleAddPatient = () => {
     if (!newPatient.name || !newPatient.email) return;
     const patient: Patient = {
-      id: (patients.length + 1).toString(),
+      id: crypto.randomUUID(),
       name: newPatient.name,
       age: parseInt(newPatient.age) || 30,
       gender: newPatient.gender,
@@ -68,8 +72,26 @@ const AdminPatients = () => {
     });
   };
 
-  const handleDelete = (id: string) => {
-    setPatients(patients.filter(p => p.id !== id));
+  const handleDeleteClick = (id: string) => {
+    setDeleteConfirmId(id);
+  };
+
+  const handleDeleteConfirmed = async () => {
+    if (!deleteConfirmId) return;
+    try {
+      // Simulate API call for now, but in a real app:
+      // await fetch(`/api/v1/patients/${deleteConfirmId}`, { method: 'DELETE', headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` } });
+      setPatients(prev => prev.filter(p => p.id !== deleteConfirmId));
+    } catch {
+      console.error('Failed to delete patient');
+    } finally {
+      setDeleteConfirmId(null);
+    }
+  };
+
+  const handleEditPatient = (patient: Patient) => {
+    // Logic to open edit dialog with patient details
+    console.log('Editing patient', patient);
   };
 
   return (
@@ -140,8 +162,8 @@ const AdminPatients = () => {
                     </TableCell>
                     <TableCell sx={{ color: '#94a3b8' }}>{patient.room}</TableCell>
                     <TableCell align="right">
-                      <IconButton size="small" sx={{ color: '#94a3b8', mr: 1 }}><EditIcon fontSize="small" /></IconButton>
-                      <IconButton size="small" sx={{ color: '#ef4444' }} onClick={() => handleDelete(patient.id)}><DeleteIcon fontSize="small" /></IconButton>
+                      <IconButton size="small" aria-label={`Edit patient ${patient.name}`} sx={{ color: '#94a3b8', mr: 1 }} onClick={() => handleEditPatient(patient)}><EditIcon fontSize="small" /></IconButton>
+                      <IconButton size="small" aria-label={`Delete patient ${patient.name}`} sx={{ color: '#ef4444' }} onClick={() => handleDeleteClick(patient.id)}><DeleteIcon fontSize="small" /></IconButton>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -170,6 +192,7 @@ const AdminPatients = () => {
                 type="number" 
                 fullWidth 
                 value={newPatient.age} 
+                inputProps={{ min: 0, max: 150, 'aria-label': 'Patient age' }}
                 onChange={(e) => setNewPatient({ ...newPatient, age: e.target.value })} 
               />
             </Grid>
@@ -212,7 +235,7 @@ const AdminPatients = () => {
                 fullWidth 
                 value={newPatient.status}
                 slotProps={{ select: { native: true } }}
-                onChange={(e) => setNewPatient({ ...newPatient, status: e.target.value as any })}
+                onChange={(e) => setNewPatient({ ...newPatient, status: e.target.value as Patient['status'] })}
               >
                 <option value="Active">Active</option>
                 <option value="Admitted">Admitted</option>
@@ -232,6 +255,17 @@ const AdminPatients = () => {
         <DialogActions sx={{ px: 3, pb: 3 }}>
           <Button onClick={() => setOpen(false)} sx={{ color: '#94a3b8' }}>Cancel</Button>
           <Button variant="contained" onClick={handleAddPatient} sx={{ background: 'linear-gradient(45deg, #0ea5e9, #8b5cf6)' }}>Add Patient</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={!!deleteConfirmId} onClose={() => setDeleteConfirmId(null)} maxWidth="xs" fullWidth>
+        <DialogTitle sx={{ fontWeight: 700 }}>Confirm Deletion</DialogTitle>
+        <DialogContent sx={{ p: 3 }}>
+          <Typography>Are you sure you want to delete this patient record? This action cannot be undone.</Typography>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 3 }}>
+          <Button onClick={() => setDeleteConfirmId(null)} sx={{ color: '#94a3b8' }}>Cancel</Button>
+          <Button variant="contained" onClick={handleDeleteConfirmed} sx={{ background: '#ef4444', '&:hover': { background: '#dc2626' } }}>Delete</Button>
         </DialogActions>
       </Dialog>
     </Box>

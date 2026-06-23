@@ -12,6 +12,7 @@ import com.hms.auth.repository.RefreshTokenRepository;
 import com.hms.auth.repository.UserRepository;
 import com.hms.auth.security.JwtService;
 import com.hms.common.exception.BusinessException;
+import com.hms.common.exception.AuthenticationException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -65,14 +66,14 @@ public class AuthService {
     @Transactional
     public AuthResponse login(LoginRequest loginRequest) {
         User user = userRepository.findByEmail(loginRequest.getEmail())
-                // [MEDIUM-38] Was RuntimeException (→500); BusinessException maps to 400 via GlobalExceptionHandler
-                .orElseThrow(() -> new BusinessException("Invalid Credentials"));
+                // [MEDIUM-38] Was RuntimeException (→500); AuthenticationException maps to 401 via GlobalExceptionHandler
+                .orElseThrow(() -> new AuthenticationException("Invalid Credentials"));
 
         boolean matches = passwordEncoder
                 .matches(loginRequest.getPassword(), user.getPassword());
 
         if (!matches) {
-            throw new BusinessException("Invalid Credentials");
+            throw new AuthenticationException("Invalid Credentials");
         }
 
         auditEventProducer.publish(
@@ -92,10 +93,13 @@ public class AuthService {
     @Transactional
     public AuthResponse refreshToken(String token) {
         RefreshToken refreshToken = refreshTokenRepository.findByToken(token)
-                .orElseThrow(() -> new BusinessException("Refresh token not found"));
+                .orElseThrow(() -> new AuthenticationException("Refresh token not found"));
 
-        if (!jwtService.isValid(token) || refreshToken.getExpiredAt().isBefore(LocalDateTime.now())) {
-            throw new BusinessException("Invalid or expired refresh token");
+        if (refreshToken.getExpiredAt().isBefore(java.time.LocalDateTime.now(java.time.ZoneOffset.UTC))) {
+            throw new AuthenticationException("Refresh token has expired");
+        }
+        if (!jwtService.isValid(token)) {
+            throw new AuthenticationException("Refresh token signature is invalid");
         }
 
         auditEventProducer.publish(
@@ -113,7 +117,7 @@ public class AuthService {
     }
 
     @Transactional
-    public AuthResponse generateToken(String email) {
+    AuthResponse generateToken(String email) {
         String accessToken = jwtService.generateAccessToken(email);
         String refreshToken = jwtService.generateRefreshToken(email);
 

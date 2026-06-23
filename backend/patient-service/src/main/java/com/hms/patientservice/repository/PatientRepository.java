@@ -11,6 +11,8 @@ public interface PatientRepository extends JpaRepository<Patient, String> {
 
     boolean existsByEmailAndActiveTrue(String email);
 
+    Page<Patient> findAllByActiveTrue(Pageable pageable);
+
     Page<Patient> findByFirstNameContainingIgnoreCaseAndActiveTrue(
             String firstName,
             Pageable pageable);

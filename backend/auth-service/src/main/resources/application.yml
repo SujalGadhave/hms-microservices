@@ -29,7 +29,7 @@ spring:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
 jwt:
-  secret: ${JWT_SECRET}
+  secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
   access-token-expiration: ${JWT_ACCESS_TOKEN_EXPIRATION:3600000}
   refresh-token-expiration: ${JWT_REFRESH_TOKEN_EXPIRATION:604800000}
 
@@ -42,4 +42,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics
+        include: health,info
+  endpoint:
+    health:
+      show-details: never

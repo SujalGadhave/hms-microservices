@@ -1,5 +1,6 @@
 package com.hms.common.exception;
 
+import org.slf4j.MDC;
 import com.hms.common.dto.ApiResponse;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
@@ -27,7 +28,7 @@ public class GlobalExceptionHandler {
     /** 400 — domain-specific business rule violation */
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ApiResponse<Void>> handleBusinessException(BusinessException ex) {
-        logger.warn("BusinessException: {}", ex.getMessage());
+        logger.warn("BusinessException [correlationId={}]: {}", MDC.get("X-Correlation-Id"), ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.<Void>builder()
                         .success(false)
@@ -42,7 +43,7 @@ public class GlobalExceptionHandler {
         String message = ex.getBindingResult().getFieldErrors().stream()
                 .map(FieldError::getDefaultMessage)
                 .collect(Collectors.joining("; "));
-        logger.warn("Validation failure: {}", message);
+        logger.warn("Validation failure [correlationId={}]: {}", MDC.get("X-Correlation-Id"), message);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.<Void>builder()
                         .success(false)
@@ -57,7 +58,7 @@ public class GlobalExceptionHandler {
         String message = ex.getConstraintViolations().stream()
                 .map(ConstraintViolation::getMessage)
                 .collect(Collectors.joining("; "));
-        logger.warn("Constraint violation: {}", message);
+        logger.warn("Constraint violation [correlationId={}]: {}", MDC.get("X-Correlation-Id"), message);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.<Void>builder()
                         .success(false)
@@ -69,7 +70,7 @@ public class GlobalExceptionHandler {
     /** 404 — JPA entity not found */
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ApiResponse<Void>> handleEntityNotFound(EntityNotFoundException ex) {
-        logger.warn("Entity not found: {}", ex.getMessage());
+        logger.warn("Entity not found [correlationId={}]: {}", MDC.get("X-Correlation-Id"), ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ApiResponse.<Void>builder()
                         .success(false)
@@ -81,7 +82,7 @@ public class GlobalExceptionHandler {
     /** 404 — Spring MVC static resource not found */
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<ApiResponse<Void>> handleNoResource(NoResourceFoundException ex) {
-        logger.warn("No resource found: {}", ex.getMessage());
+        logger.warn("No resource found [correlationId={}]: {}", MDC.get("X-Correlation-Id"), ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ApiResponse.<Void>builder()
                         .success(false)
@@ -93,7 +94,7 @@ public class GlobalExceptionHandler {
     /** 403 — Spring Security access denied */
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiResponse<Void>> handleAccessDenied(AccessDeniedException ex) {
-        logger.warn("Access denied: {}", ex.getMessage());
+        logger.warn("Access denied [correlationId={}]: {}", MDC.get("X-Correlation-Id"), ex.getMessage());
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(ApiResponse.<Void>builder()
                         .success(false)
@@ -105,7 +106,7 @@ public class GlobalExceptionHandler {
     /** 409 — DB unique constraint / foreign key violation */
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiResponse<Void>> handleDataIntegrity(DataIntegrityViolationException ex) {
-        logger.warn("Data integrity violation: {}", ex.getMostSpecificCause().getMessage());
+        logger.warn("Data integrity violation [correlationId={}]: {}", MDC.get("X-Correlation-Id"), ex.getMostSpecificCause().getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(ApiResponse.<Void>builder()
                         .success(false)
@@ -117,11 +118,23 @@ public class GlobalExceptionHandler {
     /** 500 — catch-all for unexpected exceptions (no stack trace leaked to client) */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleException(Exception ex) {
-        logger.error("Unhandled exception: ", ex);
+        logger.error("Unhandled exception [correlationId={}]: ", MDC.get("X-Correlation-Id"), ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.<Void>builder()
                         .success(false)
                         .message("An unexpected error occurred.")
+                        .timeStamp(LocalDateTime.now())
+                        .build());
+    }
+
+    /** 401 — Authentication failure */
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ApiResponse<Void>> handleAuthFailure(AuthenticationException ex) {
+        logger.warn("Authentication failure [correlationId={}]: {}", MDC.get("X-Correlation-Id"), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(ApiResponse.<Void>builder()
+                        .success(false)
+                        .message(ex.getMessage())
                         .timeStamp(LocalDateTime.now())
                         .build());
     }

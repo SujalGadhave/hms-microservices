@@ -84,6 +84,18 @@
             <artifactId>lombok</artifactId>
         </dependency>
 
+        <!-- FLYWAY -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+
+        <!-- FLYWAY POSTGRESQL SUPPORT (required for Flyway 10+ with PostgreSQL) -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-postgresql</artifactId>
+        </dependency>
+
         <!-- MAPSTRUCT -->
         <dependency>
             <groupId>org.mapstruct</groupId>

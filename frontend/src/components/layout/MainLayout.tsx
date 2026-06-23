@@ -1,3 +1,4 @@
+import { useEffect, useMemo } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { Box, AppBar, Toolbar, Typography, Drawer, List, ListItemButton, ListItemIcon, ListItemText, Avatar, Divider } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
@@ -14,23 +15,40 @@ const MainLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const userRole = localStorage.getItem('userRole') || 'admin';
-  const userEmail = localStorage.getItem('userEmail') || 'admin@astraea.com';
+  const userRole = localStorage.getItem('userRole') ?? '';
+  const userEmail = localStorage.getItem('userEmail') ?? '';
 
   const handleLogout = () => {
-    localStorage.clear();
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('userEmail');
     navigate('/login');
   };
 
-  const getNavItems = () => {
-    if (userRole === 'admin') {
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) { navigate('/login'); return; }
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      if (payload.exp * 1000 < Date.now()) {
+        localStorage.removeItem('accessToken');
+        navigate('/login');
+      }
+    } catch {
+      navigate('/login');
+    }
+  }, [navigate]);
+
+  const navItems = useMemo(() => {
+    if (userRole === 'ROLE_ADMIN' || userRole === 'admin') {
       return [
         { text: 'Dashboard', path: '/admin', icon: <DashboardIcon /> },
         { text: 'Patients', path: '/admin/patients', icon: <PeopleIcon /> },
         { text: 'Appointments', path: '/admin/appointments', icon: <EventIcon /> },
         { text: 'Analytics', path: '/admin/analytics', icon: <BarChartIcon /> },
       ];
-    } else if (userRole === 'doctor') {
+    } else if (userRole === 'ROLE_DOCTOR' || userRole === 'doctor') {
       return [
         { text: 'Doctor Portal', path: '/doctor', icon: <LocalHospitalIcon /> },
       ];
@@ -39,9 +57,7 @@ const MainLayout = () => {
         { text: 'Patient Portal', path: '/patient', icon: <AccountCircleIcon /> },
       ];
     }
-  };
-
-  const navItems = getNavItems();
+  }, [userRole]);
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
