@@ -6,6 +6,7 @@ import MainLayout from './components/layout/MainLayout';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 
 const Login = lazy(() => import('./pages/auth/Login'));
+const Register = lazy(() => import('./pages/auth/Register'));
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
 const AdminPatients = lazy(() => import('./pages/admin/AdminPatients'));
 const AdminAppointments = lazy(() => import('./pages/admin/AdminAppointments'));
@@ -21,6 +22,7 @@ function App() {
         <Suspense fallback={<Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#0f172a' }}><CircularProgress sx={{ color: '#0ea5e9' }} /></Box>}>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             <Route path="/" element={<MainLayout />}>
               <Route index element={<Navigate to="/login" replace />} />
               
