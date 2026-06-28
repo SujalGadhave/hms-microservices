@@ -1,17 +1,18 @@
 package com.hms.gateway.security;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.cloud.gateway.filter.GatewayFilter;
+import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+import org.springframework.core.Ordered;
 
 @Component
 @RequiredArgsConstructor
-public class AuthenticationFilter implements GatewayFilter {
+public class AuthenticationFilter implements GlobalFilter, Ordered {
 
     private final JwtUtil jwtUtil;
 
@@ -61,5 +62,10 @@ public class AuthenticationFilter implements GatewayFilter {
 
         return chain.filter(exchange);
 
+    }
+
+    @Override
+    public int getOrder() {
+        return -1;
     }
 }

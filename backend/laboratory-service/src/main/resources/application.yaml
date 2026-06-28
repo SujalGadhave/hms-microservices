@@ -10,7 +10,7 @@ spring:
       maximum-pool-size: 2
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:laboratory_db}
     username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:Sujal@123}
+    password: ${DB_PASSWORD}
 
   jpa:
     hibernate:
