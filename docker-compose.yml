@@ -1,88 +1,298 @@
-version: '3.8'
-
-services:
+﻿services:
   postgres:
-    image: postgres:15-alpine
+    image: postgres:16
+    container_name: hms-postgres
     environment:
-      POSTGRES_USER: ${DB_USERNAME:-hms_user}
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
-      POSTGRES_DB: ${DB_NAME:-hms_db}
+      POSTGRES_MULTIPLE_DATABASES: auth_db,patient_db,appointment_db,notification_db,billing_db,audit_db,analytics_db
     ports:
       - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/infra/postgres/init-multiple-dbs.sh:/docker-entrypoint-initdb.d/init-multiple-dbs.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
   redis:
     image: redis:7-alpine
-    command: ["redis-server", "--maxmemory", "256mb", "--maxmemory-policy", "allkeys-lru"]
+    container_name: hms-redis
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.1
+    container_name: hms-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    ports:
+      - "2181:2181"
 
   kafka:
-    image: bitnami/kafka:latest
+    image: confluentinc/cp-kafka:7.6.1
+    container_name: hms-kafka
+    depends_on:
+      - zookeeper
     environment:
-      - KAFKA_CFG_NODE_ID=0
-      - KAFKA_CFG_PROCESS_ROLES=controller,broker
-      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
-      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
-      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
-      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
     ports:
       - "9092:9092"
 
   discovery-server:
-    build: backend/discovery-server
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.service
+      args:
+        MODULE: discovery-server
+    environment:
+      SERVER_PORT: 8761
     ports:
       - "8761:8761"
 
+  config-server:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.service
+      args:
+        MODULE: config-server
+    depends_on:
+      - discovery-server
+    environment:
+      SERVER_PORT: 8888
+      EUREKA_DEFAULT_ZONE: http://discovery-server:8761/eureka
+      CONFIG_GIT_URI: ${CONFIG_GIT_URI:-https://github.com/SujalGadhave/hms-config-repo}
+    ports:
+      - "8888:8888"
+
   api-gateway:
-    build: backend/api-gateway
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.service
+      args:
+        MODULE: api-gateway
+    depends_on:
+      - discovery-server
+    environment:
+      SERVER_PORT: 8080
+      EUREKA_DEFAULT_ZONE: http://discovery-server:8761/eureka
+      JWT_SECRET: ${JWT_SECRET:-replace-with-a-32-byte-secret}
     ports:
       - "8080:8080"
-    depends_on:
-      - discovery-server
 
   auth-service:
-    build: backend/auth-service
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hms_db
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.service
+      args:
+        MODULE: auth-service
     depends_on:
-      - postgres
-      - discovery-server
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+      discovery-server:
+        condition: service_started
+    environment:
+      SERVER_PORT: 8081
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: auth_db
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      EUREKA_DEFAULT_ZONE: http://discovery-server:8761/eureka
+      JWT_SECRET: ${JWT_SECRET:-replace-with-a-32-byte-secret}
+    ports:
+      - "8081:8081"
 
   patient-service:
-    build: backend/patient-service
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hms_db
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.service
+      args:
+        MODULE: patient-service
     depends_on:
-      - postgres
-      - discovery-server
-
-  doctor-service:
-    build: backend/doctor-service
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+      discovery-server:
+        condition: service_started
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hms_db
-    depends_on:
-      - postgres
-      - discovery-server
+      SERVER_PORT: 8082
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: patient_db
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      EUREKA_DEFAULT_ZONE: http://discovery-server:8761/eureka
+    ports:
+      - "8082:8082"
 
   appointment-service:
-    build: backend/appointment-service
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hms_db
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.service
+      args:
+        MODULE: appointment-service
     depends_on:
-      - postgres
-      - discovery-server
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+      discovery-server:
+        condition: service_started
+    environment:
+      SERVER_PORT: 8083
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: appointment_db
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      EUREKA_DEFAULT_ZONE: http://discovery-server:8761/eureka
+    ports:
+      - "8083:8083"
 
-  pharmacy-service:
-    build: backend/pharmacy-service
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hms_db
+  notification-service:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.service
+      args:
+        MODULE: notification-service
     depends_on:
-      - postgres
-      - discovery-server
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+      discovery-server:
+        condition: service_started
+    environment:
+      SERVER_PORT: 8084
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: notification_db
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      MAIL_USERNAME: ${MAIL_USERNAME:-replace-with-mail-user}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-replace-with-mail-password}
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      EUREKA_DEFAULT_ZONE: http://discovery-server:8761/eureka
+    ports:
+      - "8084:8084"
+
+  billing-service:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.service
+      args:
+        MODULE: billing-service
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+      discovery-server:
+        condition: service_started
+    environment:
+      SERVER_PORT: 8085
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: billing_db
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      EUREKA_DEFAULT_ZONE: http://discovery-server:8761/eureka
+    ports:
+      - "8085:8085"
+
+  audit-service:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.service
+      args:
+        MODULE: audit-service
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+      discovery-server:
+        condition: service_started
+    environment:
+      SERVER_PORT: 8086
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: audit_db
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      EUREKA_DEFAULT_ZONE: http://discovery-server:8761/eureka
+    ports:
+      - "8086:8086"
+
+  analytics-service:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.service
+      args:
+        MODULE: analytics-service
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+      discovery-server:
+        condition: service_started
+    environment:
+      SERVER_PORT: 8087
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: analytics_db
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      EUREKA_DEFAULT_ZONE: http://discovery-server:8761/eureka
+    ports:
+      - "8087:8087"
+
 
   frontend:
-    build: frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
       - "3000:80"
     depends_on:
-      - api-gateway
+      api-gateway:
+        condition: service_started
+
+volumes:
+  postgres_data:

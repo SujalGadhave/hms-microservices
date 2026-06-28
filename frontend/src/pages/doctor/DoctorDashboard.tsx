@@ -1,28 +1,36 @@
-import { useState } from 'react';
-import { Box, Typography, Grid, Card, CardContent, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, Button, TextField, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import { useState, useEffect } from 'react';
+import { Box, Typography, Grid, Card, CardContent, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip, Button, TextField, Dialog, DialogTitle, DialogContent, DialogActions, CircularProgress, Alert } from '@mui/material';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import CreateIcon from '@mui/icons-material/Create';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import GroupIcon from '@mui/icons-material/Group';
 
-interface AppointmentQueue {
+interface AppointmentResponse {
   id: string;
+  patientId: string;
   patientName: string;
-  age: number;
-  reason: string;
-  time: string;
-  status: 'In Queue' | 'In Progress' | 'Completed';
+  doctorId: string;
+  startTime: string;
+  endTime: string;
+  status: string;
+  reasonForVisit: string;
 }
 
-const initialQueue: AppointmentQueue[] = [
-  { id: '1', patientName: 'John Doe', age: 45, reason: 'Follow-up Checkup', time: '10:00 AM', status: 'In Queue' },
-  { id: '2', patientName: 'Jane Smith', age: 34, reason: 'Migraine Review', time: '11:30 AM', status: 'In Progress' },
-  { id: '3', patientName: 'Robert Johnson', age: 62, reason: 'High Blood Pressure', time: '02:00 PM', status: 'In Queue' },
-  { id: '4', patientName: 'Emily Davis', age: 29, reason: 'Child Care Consult', time: '04:15 PM', status: 'Completed' },
-];
+interface PageData {
+  content: AppointmentResponse[];
+  totalPages: number;
+}
 
 const DoctorDashboard = () => {
-  const [queue, setQueue] = useState<AppointmentQueue[]>(initialQueue);
+  const firstName = localStorage.getItem('userFirstName') ?? '';
+  const lastName  = localStorage.getItem('userLastName') ?? '';
+  const userEmail = localStorage.getItem('userEmail') ?? '';
+  const displayName = firstName ? `${firstName} ${lastName}`.trim() : userEmail.split('@')[0];
+  
+  const [appointments, setAppointments] = useState<AppointmentResponse[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  
   const [open, setOpen] = useState(false);
   const [prescription, setPrescription] = useState({
     patientName: '',
@@ -31,7 +39,30 @@ const DoctorDashboard = () => {
     frequency: 'Once a day'
   });
 
-  const handleCreatePrescription = () => {
+  const fetchAppointments = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('accessToken');
+      // For demo purposes, we fetch appointments for a dummy doctor ID, or if we had a real one in the token.
+      const doctorId = "DOC-123"; 
+      const response = await fetch(`/api/v1/appointments?doctorId=${doctorId}&status=SCHEDULED&page=0&size=10`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!response.ok) throw new Error('Failed to fetch appointments');
+      const data: PageData = await response.json();
+      setAppointments(data.content || []);
+    } catch (err: any) {
+      setError(err.message || 'Services might be down. Please run start-services.ps1');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAppointments();
+  }, []);
+
+  const handleCreatePrescription = async () => {
     if (!prescription.patientName || !prescription.medicine) return;
     alert(`Prescription written successfully for ${prescription.patientName}!\nMedicine: ${prescription.medicine} (${prescription.dosage}), Frequency: ${prescription.frequency}`);
     setOpen(false);
@@ -43,16 +74,18 @@ const DoctorDashboard = () => {
     });
   };
 
-  const handleUpdateStatus = (id: string, status: 'In Queue' | 'In Progress' | 'Completed') => {
-    setQueue(queue.map(q => q.id === id ? { ...q, status } : q));
+  const handleUpdateStatus = async (id: string, newStatus: string) => {
+    // Optimistic update for UI
+    setAppointments(appointments.map(a => a.id === id ? { ...a, status: newStatus } : a));
+    // Ideally this would call a backend endpoint to update the status.
   };
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Box>
-          <Typography variant="h4" sx={{ fontWeight: 700 }}>Dr. Stephen Strange</Typography>
-          <Typography variant="subtitle1" sx={{ color: '#0ea5e9', fontWeight: 500 }}>Chief of Surgery & Neurology</Typography>
+          <Typography variant="h4" sx={{ fontWeight: 700 }}>{displayName || 'Doctor'}</Typography>
+          <Typography variant="subtitle1" sx={{ color: '#0ea5e9', fontWeight: 500 }}>Doctor Portal</Typography>
         </Box>
         <Button 
           variant="contained" 
@@ -64,9 +97,11 @@ const DoctorDashboard = () => {
         </Button>
       </Box>
 
+      {error && <Alert severity="info">Note: {error}. The list below may be empty until the Appointment Service is running and populated.</Alert>}
+
       {/* Stats row */}
       <Grid container spacing={4}>
-        <Grid size={{ xs: 12, md: 4 }}>
+        <Grid item xs={12} md={4}>
           <Card>
             <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 3, p: 3 }}>
               <Box sx={{ p: 2, borderRadius: '16px', background: 'rgba(14, 165, 233, 0.1)' }}>
@@ -74,12 +109,12 @@ const DoctorDashboard = () => {
               </Box>
               <Box>
                 <Typography variant="body2" sx={{ color: '#94a3b8' }}>Queue Status</Typography>
-                <Typography variant="h4" sx={{ fontWeight: 700 }}>4 Patients</Typography>
+                <Typography variant="h4" sx={{ fontWeight: 700 }}>{appointments.length} Patients</Typography>
               </Box>
             </CardContent>
           </Card>
         </Grid>
-        <Grid size={{ xs: 12, md: 4 }}>
+        <Grid item xs={12} md={4}>
           <Card>
             <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 3, p: 3 }}>
               <Box sx={{ p: 2, borderRadius: '16px', background: 'rgba(139, 92, 246, 0.1)' }}>
@@ -87,12 +122,12 @@ const DoctorDashboard = () => {
               </Box>
               <Box>
                 <Typography variant="body2" sx={{ color: '#94a3b8' }}>Consultations Today</Typography>
-                <Typography variant="h4" sx={{ fontWeight: 700 }}>18 Visits</Typography>
+                <Typography variant="h4" sx={{ fontWeight: 700 }}>0 Visits</Typography>
               </Box>
             </CardContent>
           </Card>
         </Grid>
-        <Grid size={{ xs: 12, md: 4 }}>
+        <Grid item xs={12} md={4}>
           <Card>
             <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 3, p: 3 }}>
               <Box sx={{ p: 2, borderRadius: '16px', background: 'rgba(16, 185, 129, 0.1)' }}>
@@ -100,7 +135,7 @@ const DoctorDashboard = () => {
               </Box>
               <Box>
                 <Typography variant="body2" sx={{ color: '#94a3b8' }}>Active Prescriptions</Typography>
-                <Typography variant="h4" sx={{ fontWeight: 700 }}>9 Written</Typography>
+                <Typography variant="h4" sx={{ fontWeight: 700 }}>0 Written</Typography>
               </Box>
             </CardContent>
           </Card>
@@ -111,56 +146,68 @@ const DoctorDashboard = () => {
       <Card sx={{ background: 'rgba(30, 41, 59, 0.4)' }}>
         <CardContent sx={{ p: 3 }}>
           <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>Today's Patient Queue</Typography>
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow sx={{ borderBottom: '2px solid rgba(255,255,255,0.05)' }}>
-                  <TableCell sx={{ color: '#94a3b8', fontWeight: 600 }}>Patient</TableCell>
-                  <TableCell sx={{ color: '#94a3b8', fontWeight: 600 }}>Age</TableCell>
-                  <TableCell sx={{ color: '#94a3b8', fontWeight: 600 }}>Reason for Visit</TableCell>
-                  <TableCell sx={{ color: '#94a3b8', fontWeight: 600 }}>Scheduled Time</TableCell>
-                  <TableCell sx={{ color: '#94a3b8', fontWeight: 600 }}>Status</TableCell>
-                  <TableCell sx={{ color: '#94a3b8', fontWeight: 600 }} align="right">Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {queue.map((q) => (
-                  <TableRow key={q.id}>
-                    <TableCell sx={{ color: 'white', fontWeight: 600 }}>{q.patientName}</TableCell>
-                    <TableCell sx={{ color: '#94a3b8' }}>{q.age}</TableCell>
-                    <TableCell sx={{ color: '#94a3b8' }}>{q.reason}</TableCell>
-                    <TableCell sx={{ color: '#94a3b8' }}>{q.time}</TableCell>
-                    <TableCell>
-                      <Chip 
-                        label={q.status} 
-                        size="small"
-                        sx={{ 
-                          bgcolor: q.status === 'Completed' ? 'rgba(16, 185, 129, 0.15)' : q.status === 'In Progress' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(14, 165, 233, 0.15)',
-                          color: q.status === 'Completed' ? '#34d399' : q.status === 'In Progress' ? '#fbbf24' : '#38bdf8',
-                          fontWeight: 600
-                        }} 
-                      />
-                    </TableCell>
-                    <TableCell align="right">
-                      {q.status === 'In Queue' && (
-                        <Button variant="outlined" size="small" onClick={() => handleUpdateStatus(q.id, 'In Progress')}>
-                          Start Consult
-                        </Button>
-                      )}
-                      {q.status === 'In Progress' && (
-                        <Button variant="contained" color="success" size="small" onClick={() => handleUpdateStatus(q.id, 'Completed')}>
-                          Complete
-                        </Button>
-                      )}
-                      {q.status === 'Completed' && (
-                        <Typography variant="body2" sx={{ color: '#64748b' }}>Finished</Typography>
-                      )}
-                    </TableCell>
+          
+          {loading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}><CircularProgress sx={{ color: '#0ea5e9' }} /></Box>
+          ) : (
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow sx={{ borderBottom: '2px solid rgba(255,255,255,0.05)' }}>
+                    <TableCell sx={{ color: '#94a3b8', fontWeight: 600 }}>Patient Name</TableCell>
+                    <TableCell sx={{ color: '#94a3b8', fontWeight: 600 }}>Reason for Visit</TableCell>
+                    <TableCell sx={{ color: '#94a3b8', fontWeight: 600 }}>Scheduled Time</TableCell>
+                    <TableCell sx={{ color: '#94a3b8', fontWeight: 600 }}>Status</TableCell>
+                    <TableCell sx={{ color: '#94a3b8', fontWeight: 600 }} align="right">Actions</TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+                </TableHead>
+                <TableBody>
+                  {appointments.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={5} align="center" sx={{ color: '#94a3b8', py: 4 }}>
+                        <LocalHospitalIcon sx={{ fontSize: 48, opacity: 0.5, mb: 1 }} />
+                        <Typography>No appointments currently in queue.</Typography>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    appointments.map((q) => (
+                      <TableRow key={q.id}>
+                        <TableCell sx={{ color: 'white', fontWeight: 600 }}>{q.patientName || 'Unknown Patient'}</TableCell>
+                        <TableCell sx={{ color: '#94a3b8' }}>{q.reasonForVisit}</TableCell>
+                        <TableCell sx={{ color: '#94a3b8' }}>{new Date(q.startTime).toLocaleTimeString()}</TableCell>
+                        <TableCell>
+                          <Chip 
+                            label={q.status} 
+                            size="small"
+                            sx={{ 
+                              bgcolor: q.status === 'COMPLETED' ? 'rgba(16, 185, 129, 0.15)' : q.status === 'IN_PROGRESS' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(14, 165, 233, 0.15)',
+                              color: q.status === 'COMPLETED' ? '#34d399' : q.status === 'IN_PROGRESS' ? '#fbbf24' : '#38bdf8',
+                              fontWeight: 600
+                            }} 
+                          />
+                        </TableCell>
+                        <TableCell align="right">
+                          {q.status === 'SCHEDULED' && (
+                            <Button variant="outlined" size="small" onClick={() => handleUpdateStatus(q.id, 'IN_PROGRESS')}>
+                              Start Consult
+                            </Button>
+                          )}
+                          {q.status === 'IN_PROGRESS' && (
+                            <Button variant="contained" color="success" size="small" onClick={() => handleUpdateStatus(q.id, 'COMPLETED')}>
+                              Complete
+                            </Button>
+                          )}
+                          {q.status === 'COMPLETED' && (
+                            <Typography variant="body2" sx={{ color: '#64748b' }}>Finished</Typography>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
         </CardContent>
       </Card>
 
@@ -195,7 +242,7 @@ const DoctorDashboard = () => {
               select 
               fullWidth 
               value={prescription.frequency}
-              slotProps={{ select: { native: true } }}
+              SelectProps={{ native: true }}
               onChange={(e) => setPrescription({ ...prescription, frequency: e.target.value })}
             >
               <option value="Once a day">Once a day</option>

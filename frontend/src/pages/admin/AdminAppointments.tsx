@@ -29,7 +29,7 @@ const AdminAppointments = () => {
   const [search, setSearch] = useState('');
   const [menuState, setMenuState] = useState<{ anchor: HTMLElement; aptId: string } | null>(null);
 
-  const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>, id: string) => {
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, id: string) => {
     setMenuState({ anchor: event.currentTarget, aptId: id });
   };
 

@@ -12,7 +12,11 @@ public class AuditEventProducer {
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     public void publish(AuditEvent event) {
-        kafkaTemplate.send("audit-event", event);
+        try {
+            kafkaTemplate.send("audit-event", event);
+        } catch (Exception e) {
+            System.err.println("Failed to send audit event to Kafka: " + e.getMessage());
+        }
     }
 }
 

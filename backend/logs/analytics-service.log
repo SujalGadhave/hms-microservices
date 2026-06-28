@@ -1,0 +1,478 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ---------------------< com.hms:analytics-service >----------------------
+[INFO] Building analytics-service 1.0.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] >>> spring-boot:3.5.0:run (default-cli) > test-compile @ analytics-service >>>
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ analytics-service ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.14.0:compile (default-compile) @ analytics-service ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ analytics-service ---
+[INFO] skip non existing resourceDirectory C:\Projects\HMS-FULLSTACK\backend\analytics-service\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.14.0:testCompile (default-testCompile) @ analytics-service ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] <<< spring-boot:3.5.0:run (default-cli) < test-compile @ analytics-service <<<
+[INFO] 
+[INFO] 
+[INFO] --- spring-boot:3.5.0:run (default-cli) @ analytics-service ---
+[INFO] Attaching agents: []
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.5.0)
+
+2026-06-28T20:01:29.489+05:30  INFO 23204 --- [analytics-service] [           main] c.h.a.AnalyticsServiceApplication        : Starting AnalyticsServiceApplication using Java 22.0.2 with PID 23204 (C:\Projects\HMS-FULLSTACK\backend\analytics-service\target\classes started by admin in C:\Projects\HMS-FULLSTACK\backend\analytics-service)
+2026-06-28T20:01:29.503+05:30  INFO 23204 --- [analytics-service] [           main] c.h.a.AnalyticsServiceApplication        : No active profile set, falling back to 1 default profile: "default"
+2026-06-28T20:01:33.860+05:30  INFO 23204 --- [analytics-service] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2026-06-28T20:01:33.864+05:30  INFO 23204 --- [analytics-service] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-06-28T20:01:34.366+05:30  INFO 23204 --- [analytics-service] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 465 ms. Found 1 JPA repository interface.
+2026-06-28T20:01:34.406+05:30  INFO 23204 --- [analytics-service] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode
+2026-06-28T20:01:34.409+05:30  INFO 23204 --- [analytics-service] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2026-06-28T20:01:34.472+05:30  INFO 23204 --- [analytics-service] [           main] .RepositoryConfigurationExtensionSupport : Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.hms.analytics.repository.DailyMetricRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+2026-06-28T20:01:34.473+05:30  INFO 23204 --- [analytics-service] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 26 ms. Found 0 Redis repository interfaces.
+2026-06-28T20:01:35.251+05:30  INFO 23204 --- [analytics-service] [           main] o.s.cloud.context.scope.GenericScope     : BeanFactory id=19947c82-8ede-3f16-80c6-4b93dcc7b6c9
+2026-06-28T20:01:36.496+05:30  INFO 23204 --- [analytics-service] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8188 (http)
+2026-06-28T20:01:36.557+05:30  INFO 23204 --- [analytics-service] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-28T20:01:36.559+05:30  INFO 23204 --- [analytics-service] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.41]
+2026-06-28T20:01:36.812+05:30  INFO 23204 --- [analytics-service] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-06-28T20:01:36.814+05:30  INFO 23204 --- [analytics-service] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 7192 ms
+2026-06-28T20:01:38.151+05:30  INFO 23204 --- [analytics-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-06-28T20:01:39.124+05:30  INFO 23204 --- [analytics-service] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@6669cba
+2026-06-28T20:01:39.143+05:30  INFO 23204 --- [analytics-service] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-06-28T20:01:39.253+05:30  INFO 23204 --- [analytics-service] [           main] org.flywaydb.core.FlywayExecutor         : Database: jdbc:postgresql://localhost:5432/analytics_db (PostgreSQL 18.3)
+2026-06-28T20:01:39.340+05:30  WARN 23204 --- [analytics-service] [           main] o.f.c.internal.database.base.Database    : Flyway upgrade recommended: PostgreSQL 18.3 is newer than this version of Flyway and support has not been tested. The latest supported version of PostgreSQL is 17.
+2026-06-28T20:01:39.607+05:30  INFO 23204 --- [analytics-service] [           main] o.f.core.internal.command.DbValidate     : Successfully validated 1 migration (execution time 00:00.183s)
+2026-06-28T20:01:53.358+05:30  INFO 23204 --- [analytics-service] [           main] o.f.core.internal.command.DbMigrate      : Current version of schema "public": 1
+2026-06-28T20:01:53.438+05:30  INFO 23204 --- [analytics-service] [           main] o.f.core.internal.command.DbMigrate      : Schema "public" is up to date. No migration necessary.
+2026-06-28T20:01:54.411+05:30  INFO 23204 --- [analytics-service] [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-06-28T20:01:54.639+05:30  INFO 23204 --- [analytics-service] [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.15.Final
+2026-06-28T20:01:54.749+05:30  INFO 23204 --- [analytics-service] [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-06-28T20:01:55.535+05:30  INFO 23204 --- [analytics-service] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-06-28T20:01:55.798+05:30  INFO 23204 --- [analytics-service] [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 18.3
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-06-28T20:01:58.414+05:30  INFO 23204 --- [analytics-service] [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-06-28T20:01:58.723+05:30  INFO 23204 --- [analytics-service] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-06-28T20:01:59.337+05:30  INFO 23204 --- [analytics-service] [           main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-06-28T20:02:01.443+05:30  WARN 23204 --- [analytics-service] [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-06-28T20:02:04.609+05:30  INFO 23204 --- [analytics-service] [           main] DiscoveryClientOptionalArgsConfiguration : Eureka HTTP Client uses RestTemplate.
+2026-06-28T20:02:04.742+05:30  WARN 23204 --- [analytics-service] [           main] iguration$LoadBalancerCaffeineWarnLogger : Spring Cloud LoadBalancer is currently working with the default cache. While this cache implementation is useful for development and tests, it's recommended to use Caffeine cache in production.You can switch to using Caffeine cache, by adding it and org.springframework.cache.caffeine.CaffeineCacheManager to the classpath.
+2026-06-28T20:02:04.753+05:30  INFO 23204 --- [analytics-service] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-06-28T20:02:05.018+05:30  INFO 23204 --- [analytics-service] [           main] o.s.c.n.eureka.InstanceInfoFactory       : Setting initial instance status as: STARTING
+2026-06-28T20:02:05.062+05:30  INFO 23204 --- [analytics-service] [           main] com.netflix.discovery.DiscoveryClient    : Initializing Eureka in region us-east-1
+2026-06-28T20:02:05.069+05:30  INFO 23204 --- [analytics-service] [           main] c.n.d.s.r.aws.ConfigClusterResolver      : Resolving eureka endpoints via configuration
+2026-06-28T20:02:05.088+05:30  INFO 23204 --- [analytics-service] [           main] com.netflix.discovery.DiscoveryClient    : Disable delta property : false
+2026-06-28T20:02:05.088+05:30  INFO 23204 --- [analytics-service] [           main] com.netflix.discovery.DiscoveryClient    : Single vip registry refresh property : null
+2026-06-28T20:02:05.088+05:30  INFO 23204 --- [analytics-service] [           main] com.netflix.discovery.DiscoveryClient    : Force full registry fetch : false
+2026-06-28T20:02:05.088+05:30  INFO 23204 --- [analytics-service] [           main] com.netflix.discovery.DiscoveryClient    : Application is null : false
+2026-06-28T20:02:05.088+05:30  INFO 23204 --- [analytics-service] [           main] com.netflix.discovery.DiscoveryClient    : Registered Applications size is zero : true
+2026-06-28T20:02:05.088+05:30  INFO 23204 --- [analytics-service] [           main] com.netflix.discovery.DiscoveryClient    : Application version is -1: true
+2026-06-28T20:02:05.088+05:30  INFO 23204 --- [analytics-service] [           main] com.netflix.discovery.DiscoveryClient    : Getting all instance registry info from the eureka server
+2026-06-28T20:02:05.856+05:30  INFO 23204 --- [analytics-service] [           main] com.netflix.discovery.DiscoveryClient    : The response status is 200
+2026-06-28T20:02:05.859+05:30  INFO 23204 --- [analytics-service] [           main] com.netflix.discovery.DiscoveryClient    : Starting heartbeat executor: renew interval is: 30
+2026-06-28T20:02:05.862+05:30  INFO 23204 --- [analytics-service] [           main] c.n.discovery.InstanceInfoReplicator     : InstanceInfoReplicator onDemand update allowed rate per min is 4
+2026-06-28T20:02:05.866+05:30  INFO 23204 --- [analytics-service] [           main] com.netflix.discovery.DiscoveryClient    : Discovery Client initialized at timestamp 1782657125865 with initial instances count: 13
+2026-06-28T20:02:05.874+05:30  INFO 23204 --- [analytics-service] [           main] o.s.c.n.e.s.EurekaServiceRegistry        : Registering application ANALYTICS-SERVICE with eureka with status UP
+2026-06-28T20:02:05.874+05:30  INFO 23204 --- [analytics-service] [           main] com.netflix.discovery.DiscoveryClient    : Saw local status change event StatusChangeEvent [timestamp=1782657125874, current=UP, previous=STARTING]
+2026-06-28T20:02:05.876+05:30  INFO 23204 --- [analytics-service] [foReplicator-%d] com.netflix.discovery.DiscoveryClient    : DiscoveryClient_ANALYTICS-SERVICE/Sujal.mshome.net:analytics-service:8188: registering service...
+2026-06-28T20:02:05.924+05:30  INFO 23204 --- [analytics-service] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8188 (http) with context path '/'
+2026-06-28T20:02:05.925+05:30  INFO 23204 --- [analytics-service] [           main] .s.c.n.e.s.EurekaAutoServiceRegistration : Updating port to 8188
+2026-06-28T20:02:05.961+05:30  INFO 23204 --- [analytics-service] [foReplicator-%d] com.netflix.discovery.DiscoveryClient    : DiscoveryClient_ANALYTICS-SERVICE/Sujal.mshome.net:analytics-service:8188 - registration status: 204
+2026-06-28T20:02:06.019+05:30  INFO 23204 --- [analytics-service] [           main] o.a.k.clients.consumer.ConsumerConfig    : ConsumerConfig values: 
+	allow.auto.create.topics = true
+	auto.commit.interval.ms = 5000
+	auto.include.jmx.reporter = true
+	auto.offset.reset = earliest
+	bootstrap.servers = [localhost:9092]
+	check.crcs = true
+	client.dns.lookup = use_all_dns_ips
+	client.id = consumer-analytics-group-1
+	client.rack = 
+	connections.max.idle.ms = 540000
+	default.api.timeout.ms = 60000
+	enable.auto.commit = false
+	enable.metrics.push = true
+	exclude.internal.topics = true
+	fetch.max.bytes = 52428800
+	fetch.max.wait.ms = 500
+	fetch.min.bytes = 1
+	group.id = analytics-group
+	group.instance.id = null
+	group.protocol = classic
+	group.remote.assignor = null
+	heartbeat.interval.ms = 3000
+	interceptor.classes = []
+	internal.leave.group.on.close = true
+	internal.throw.on.fetch.stable.offset.unsupported = false
+	isolation.level = read_uncommitted
+	key.deserializer = class org.apache.kafka.common.serialization.StringDeserializer
+	max.partition.fetch.bytes = 1048576
+	max.poll.interval.ms = 300000
+	max.poll.records = 500
+	metadata.max.age.ms = 300000
+	metadata.recovery.strategy = none
+	metric.reporters = []
+	metrics.num.samples = 2
+	metrics.recording.level = INFO
+	metrics.sample.window.ms = 30000
+	partition.assignment.strategy = [class org.apache.kafka.clients.consumer.RangeAssignor, class org.apache.kafka.clients.consumer.CooperativeStickyAssignor]
+	receive.buffer.bytes = 65536
+	reconnect.backoff.max.ms = 1000
+	reconnect.backoff.ms = 50
+	request.timeout.ms = 30000
+	retry.backoff.max.ms = 1000
+	retry.backoff.ms = 100
+	sasl.client.callback.handler.class = null
+	sasl.jaas.config = null
+	sasl.kerberos.kinit.cmd = /usr/bin/kinit
+	sasl.kerberos.min.time.before.relogin = 60000
+	sasl.kerberos.service.name = null
+	sasl.kerberos.ticket.renew.jitter = 0.05
+	sasl.kerberos.ticket.renew.window.factor = 0.8
+	sasl.login.callback.handler.class = null
+	sasl.login.class = null
+	sasl.login.connect.timeout.ms = null
+	sasl.login.read.timeout.ms = null
+	sasl.login.refresh.buffer.seconds = 300
+	sasl.login.refresh.min.period.seconds = 60
+	sasl.login.refresh.window.factor = 0.8
+	sasl.login.refresh.window.jitter = 0.05
+	sasl.login.retry.backoff.max.ms = 10000
+	sasl.login.retry.backoff.ms = 100
+	sasl.mechanism = GSSAPI
+	sasl.oauthbearer.clock.skew.seconds = 30
+	sasl.oauthbearer.expected.audience = null
+	sasl.oauthbearer.expected.issuer = null
+	sasl.oauthbearer.header.urlencode = false
+	sasl.oauthbearer.jwks.endpoint.refresh.ms = 3600000
+	sasl.oauthbearer.jwks.endpoint.retry.backoff.max.ms = 10000
+	sasl.oauthbearer.jwks.endpoint.retry.backoff.ms = 100
+	sasl.oauthbearer.jwks.endpoint.url = null
+	sasl.oauthbearer.scope.claim.name = scope
+	sasl.oauthbearer.sub.claim.name = sub
+	sasl.oauthbearer.token.endpoint.url = null
+	security.protocol = PLAINTEXT
+	security.providers = null
+	send.buffer.bytes = 131072
+	session.timeout.ms = 45000
+	socket.connection.setup.timeout.max.ms = 30000
+	socket.connection.setup.timeout.ms = 10000
+	ssl.cipher.suites = null
+	ssl.enabled.protocols = [TLSv1.2, TLSv1.3]
+	ssl.endpoint.identification.algorithm = https
+	ssl.engine.factory.class = null
+	ssl.key.password = null
+	ssl.keymanager.algorithm = SunX509
+	ssl.keystore.certificate.chain = null
+	ssl.keystore.key = null
+	ssl.keystore.location = null
+	ssl.keystore.password = null
+	ssl.keystore.type = JKS
+	ssl.protocol = TLSv1.3
+	ssl.provider = null
+	ssl.secure.random.implementation = null
+	ssl.trustmanager.algorithm = PKIX
+	ssl.truststore.certificates = null
+	ssl.truststore.location = null
+	ssl.truststore.password = null
+	ssl.truststore.type = JKS
+	value.deserializer = class org.springframework.kafka.support.serializer.JsonDeserializer
+
+2026-06-28T20:02:06.136+05:30  INFO 23204 --- [analytics-service] [           main] o.a.k.c.t.i.KafkaMetricsCollector        : initializing Kafka metrics collector
+2026-06-28T20:02:06.405+05:30  INFO 23204 --- [analytics-service] [           main] o.a.kafka.common.utils.AppInfoParser     : Kafka version: 3.9.1
+2026-06-28T20:02:06.405+05:30  INFO 23204 --- [analytics-service] [           main] o.a.kafka.common.utils.AppInfoParser     : Kafka commitId: f745dfdcee2b9851
+2026-06-28T20:02:06.405+05:30  INFO 23204 --- [analytics-service] [           main] o.a.kafka.common.utils.AppInfoParser     : Kafka startTimeMs: 1782657126400
+2026-06-28T20:02:06.420+05:30  INFO 23204 --- [analytics-service] [           main] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-analytics-group-1, groupId=analytics-group] Subscribed to topic(s): patient-created-topic
+2026-06-28T20:02:06.447+05:30  INFO 23204 --- [analytics-service] [           main] o.a.k.clients.consumer.ConsumerConfig    : ConsumerConfig values: 
+	allow.auto.create.topics = true
+	auto.commit.interval.ms = 5000
+	auto.include.jmx.reporter = true
+	auto.offset.reset = earliest
+	bootstrap.servers = [localhost:9092]
+	check.crcs = true
+	client.dns.lookup = use_all_dns_ips
+	client.id = consumer-analytics-group-2
+	client.rack = 
+	connections.max.idle.ms = 540000
+	default.api.timeout.ms = 60000
+	enable.auto.commit = false
+	enable.metrics.push = true
+	exclude.internal.topics = true
+	fetch.max.bytes = 52428800
+	fetch.max.wait.ms = 500
+	fetch.min.bytes = 1
+	group.id = analytics-group
+	group.instance.id = null
+	group.protocol = classic
+	group.remote.assignor = null
+	heartbeat.interval.ms = 3000
+	interceptor.classes = []
+	internal.leave.group.on.close = true
+	internal.throw.on.fetch.stable.offset.unsupported = false
+	isolation.level = read_uncommitted
+	key.deserializer = class org.apache.kafka.common.serialization.StringDeserializer
+	max.partition.fetch.bytes = 1048576
+	max.poll.interval.ms = 300000
+	max.poll.records = 500
+	metadata.max.age.ms = 300000
+	metadata.recovery.strategy = none
+	metric.reporters = []
+	metrics.num.samples = 2
+	metrics.recording.level = INFO
+	metrics.sample.window.ms = 30000
+	partition.assignment.strategy = [class org.apache.kafka.clients.consumer.RangeAssignor, class org.apache.kafka.clients.consumer.CooperativeStickyAssignor]
+	receive.buffer.bytes = 65536
+	reconnect.backoff.max.ms = 1000
+	reconnect.backoff.ms = 50
+	request.timeout.ms = 30000
+	retry.backoff.max.ms = 1000
+	retry.backoff.ms = 100
+	sasl.client.callback.handler.class = null
+	sasl.jaas.config = null
+	sasl.kerberos.kinit.cmd = /usr/bin/kinit
+	sasl.kerberos.min.time.before.relogin = 60000
+	sasl.kerberos.service.name = null
+	sasl.kerberos.ticket.renew.jitter = 0.05
+	sasl.kerberos.ticket.renew.window.factor = 0.8
+	sasl.login.callback.handler.class = null
+	sasl.login.class = null
+	sasl.login.connect.timeout.ms = null
+	sasl.login.read.timeout.ms = null
+	sasl.login.refresh.buffer.seconds = 300
+	sasl.login.refresh.min.period.seconds = 60
+	sasl.login.refresh.window.factor = 0.8
+	sasl.login.refresh.window.jitter = 0.05
+	sasl.login.retry.backoff.max.ms = 10000
+	sasl.login.retry.backoff.ms = 100
+	sasl.mechanism = GSSAPI
+	sasl.oauthbearer.clock.skew.seconds = 30
+	sasl.oauthbearer.expected.audience = null
+	sasl.oauthbearer.expected.issuer = null
+	sasl.oauthbearer.header.urlencode = false
+	sasl.oauthbearer.jwks.endpoint.refresh.ms = 3600000
+	sasl.oauthbearer.jwks.endpoint.retry.backoff.max.ms = 10000
+	sasl.oauthbearer.jwks.endpoint.retry.backoff.ms = 100
+	sasl.oauthbearer.jwks.endpoint.url = null
+	sasl.oauthbearer.scope.claim.name = scope
+	sasl.oauthbearer.sub.claim.name = sub
+	sasl.oauthbearer.token.endpoint.url = null
+	security.protocol = PLAINTEXT
+	security.providers = null
+	send.buffer.bytes = 131072
+	session.timeout.ms = 45000
+	socket.connection.setup.timeout.max.ms = 30000
+	socket.connection.setup.timeout.ms = 10000
+	ssl.cipher.suites = null
+	ssl.enabled.protocols = [TLSv1.2, TLSv1.3]
+	ssl.endpoint.identification.algorithm = https
+	ssl.engine.factory.class = null
+	ssl.key.password = null
+	ssl.keymanager.algorithm = SunX509
+	ssl.keystore.certificate.chain = null
+	ssl.keystore.key = null
+	ssl.keystore.location = null
+	ssl.keystore.password = null
+	ssl.keystore.type = JKS
+	ssl.protocol = TLSv1.3
+	ssl.provider = null
+	ssl.secure.random.implementation = null
+	ssl.trustmanager.algorithm = PKIX
+	ssl.truststore.certificates = null
+	ssl.truststore.location = null
+	ssl.truststore.password = null
+	ssl.truststore.type = JKS
+	value.deserializer = class org.springframework.kafka.support.serializer.JsonDeserializer
+
+2026-06-28T20:02:06.447+05:30  INFO 23204 --- [analytics-service] [           main] o.a.k.c.t.i.KafkaMetricsCollector        : initializing Kafka metrics collector
+2026-06-28T20:02:06.461+05:30  INFO 23204 --- [analytics-service] [           main] o.a.kafka.common.utils.AppInfoParser     : Kafka version: 3.9.1
+2026-06-28T20:02:06.462+05:30  INFO 23204 --- [analytics-service] [           main] o.a.kafka.common.utils.AppInfoParser     : Kafka commitId: f745dfdcee2b9851
+2026-06-28T20:02:06.462+05:30  INFO 23204 --- [analytics-service] [           main] o.a.kafka.common.utils.AppInfoParser     : Kafka startTimeMs: 1782657126461
+2026-06-28T20:02:06.469+05:30  INFO 23204 --- [analytics-service] [           main] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-analytics-group-2, groupId=analytics-group] Subscribed to topic(s): appointment-created-topic
+2026-06-28T20:02:06.473+05:30  INFO 23204 --- [analytics-service] [           main] o.a.k.clients.consumer.ConsumerConfig    : ConsumerConfig values: 
+	allow.auto.create.topics = true
+	auto.commit.interval.ms = 5000
+	auto.include.jmx.reporter = true
+	auto.offset.reset = earliest
+	bootstrap.servers = [localhost:9092]
+	check.crcs = true
+	client.dns.lookup = use_all_dns_ips
+	client.id = consumer-analytics-group-3
+	client.rack = 
+	connections.max.idle.ms = 540000
+	default.api.timeout.ms = 60000
+	enable.auto.commit = false
+	enable.metrics.push = true
+	exclude.internal.topics = true
+	fetch.max.bytes = 52428800
+	fetch.max.wait.ms = 500
+	fetch.min.bytes = 1
+	group.id = analytics-group
+	group.instance.id = null
+	group.protocol = classic
+	group.remote.assignor = null
+	heartbeat.interval.ms = 3000
+	interceptor.classes = []
+	internal.leave.group.on.close = true
+	internal.throw.on.fetch.stable.offset.unsupported = false
+	isolation.level = read_uncommitted
+	key.deserializer = class org.apache.kafka.common.serialization.StringDeserializer
+	max.partition.fetch.bytes = 1048576
+	max.poll.interval.ms = 300000
+	max.poll.records = 500
+	metadata.max.age.ms = 300000
+	metadata.recovery.strategy = none
+	metric.reporters = []
+	metrics.num.samples = 2
+	metrics.recording.level = INFO
+	metrics.sample.window.ms = 30000
+	partition.assignment.strategy = [class org.apache.kafka.clients.consumer.RangeAssignor, class org.apache.kafka.clients.consumer.CooperativeStickyAssignor]
+	receive.buffer.bytes = 65536
+	reconnect.backoff.max.ms = 1000
+	reconnect.backoff.ms = 50
+	request.timeout.ms = 30000
+	retry.backoff.max.ms = 1000
+	retry.backoff.ms = 100
+	sasl.client.callback.handler.class = null
+	sasl.jaas.config = null
+	sasl.kerberos.kinit.cmd = /usr/bin/kinit
+	sasl.kerberos.min.time.before.relogin = 60000
+	sasl.kerberos.service.name = null
+	sasl.kerberos.ticket.renew.jitter = 0.05
+	sasl.kerberos.ticket.renew.window.factor = 0.8
+	sasl.login.callback.handler.class = null
+	sasl.login.class = null
+	sasl.login.connect.timeout.ms = null
+	sasl.login.read.timeout.ms = null
+	sasl.login.refresh.buffer.seconds = 300
+	sasl.login.refresh.min.period.seconds = 60
+	sasl.login.refresh.window.factor = 0.8
+	sasl.login.refresh.window.jitter = 0.05
+	sasl.login.retry.backoff.max.ms = 10000
+	sasl.login.retry.backoff.ms = 100
+	sasl.mechanism = GSSAPI
+	sasl.oauthbearer.clock.skew.seconds = 30
+	sasl.oauthbearer.expected.audience = null
+	sasl.oauthbearer.expected.issuer = null
+	sasl.oauthbearer.header.urlencode = false
+	sasl.oauthbearer.jwks.endpoint.refresh.ms = 3600000
+	sasl.oauthbearer.jwks.endpoint.retry.backoff.max.ms = 10000
+	sasl.oauthbearer.jwks.endpoint.retry.backoff.ms = 100
+	sasl.oauthbearer.jwks.endpoint.url = null
+	sasl.oauthbearer.scope.claim.name = scope
+	sasl.oauthbearer.sub.claim.name = sub
+	sasl.oauthbearer.token.endpoint.url = null
+	security.protocol = PLAINTEXT
+	security.providers = null
+	send.buffer.bytes = 131072
+	session.timeout.ms = 45000
+	socket.connection.setup.timeout.max.ms = 30000
+	socket.connection.setup.timeout.ms = 10000
+	ssl.cipher.suites = null
+	ssl.enabled.protocols = [TLSv1.2, TLSv1.3]
+	ssl.endpoint.identification.algorithm = https
+	ssl.engine.factory.class = null
+	ssl.key.password = null
+	ssl.keymanager.algorithm = SunX509
+	ssl.keystore.certificate.chain = null
+	ssl.keystore.key = null
+	ssl.keystore.location = null
+	ssl.keystore.password = null
+	ssl.keystore.type = JKS
+	ssl.protocol = TLSv1.3
+	ssl.provider = null
+	ssl.secure.random.implementation = null
+	ssl.trustmanager.algorithm = PKIX
+	ssl.truststore.certificates = null
+	ssl.truststore.location = null
+	ssl.truststore.password = null
+	ssl.truststore.type = JKS
+	value.deserializer = class org.springframework.kafka.support.serializer.JsonDeserializer
+
+2026-06-28T20:02:06.473+05:30  INFO 23204 --- [analytics-service] [           main] o.a.k.c.t.i.KafkaMetricsCollector        : initializing Kafka metrics collector
+2026-06-28T20:02:06.487+05:30  INFO 23204 --- [analytics-service] [           main] o.a.kafka.common.utils.AppInfoParser     : Kafka version: 3.9.1
+2026-06-28T20:02:06.487+05:30  INFO 23204 --- [analytics-service] [           main] o.a.kafka.common.utils.AppInfoParser     : Kafka commitId: f745dfdcee2b9851
+2026-06-28T20:02:06.487+05:30  INFO 23204 --- [analytics-service] [           main] o.a.kafka.common.utils.AppInfoParser     : Kafka startTimeMs: 1782657126487
+2026-06-28T20:02:06.491+05:30  INFO 23204 --- [analytics-service] [           main] o.a.k.c.c.i.ClassicKafkaConsumer         : [Consumer clientId=consumer-analytics-group-3, groupId=analytics-group] Subscribed to topic(s): invoice-paid-topic
+2026-06-28T20:02:06.515+05:30  INFO 23204 --- [analytics-service] [           main] c.h.a.AnalyticsServiceApplication        : Started AnalyticsServiceApplication in 39.25 seconds (process running for 42.139)
+2026-06-28T20:02:07.259+05:30  INFO 23204 --- [analytics-service] [ntainer#0-0-C-1] org.apache.kafka.clients.Metadata        : [Consumer clientId=consumer-analytics-group-2, groupId=analytics-group] Cluster ID: 9usRquJiRlG25kRxFJxktg
+2026-06-28T20:02:07.261+05:30  INFO 23204 --- [analytics-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-analytics-group-2, groupId=analytics-group] Discovered group coordinator localhost:9092 (id: 2147483646 rack: null)
+2026-06-28T20:02:07.269+05:30  INFO 23204 --- [analytics-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-analytics-group-2, groupId=analytics-group] (Re-)joining group
+2026-06-28T20:02:07.275+05:30  WARN 23204 --- [analytics-service] [ntainer#1-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-analytics-group-3, groupId=analytics-group] The metadata response from the cluster reported a recoverable issue with correlation id 3 : {invoice-paid-topic=LEADER_NOT_AVAILABLE}
+2026-06-28T20:02:07.276+05:30  INFO 23204 --- [analytics-service] [ntainer#1-0-C-1] org.apache.kafka.clients.Metadata        : [Consumer clientId=consumer-analytics-group-3, groupId=analytics-group] Cluster ID: 9usRquJiRlG25kRxFJxktg
+2026-06-28T20:02:07.278+05:30  WARN 23204 --- [analytics-service] [ntainer#2-0-C-1] org.apache.kafka.clients.NetworkClient   : [Consumer clientId=consumer-analytics-group-1, groupId=analytics-group] The metadata response from the cluster reported a recoverable issue with correlation id 3 : {patient-created-topic=LEADER_NOT_AVAILABLE}
+2026-06-28T20:02:07.279+05:30  INFO 23204 --- [analytics-service] [ntainer#2-0-C-1] org.apache.kafka.clients.Metadata        : [Consumer clientId=consumer-analytics-group-1, groupId=analytics-group] Cluster ID: 9usRquJiRlG25kRxFJxktg
+2026-06-28T20:02:07.279+05:30  INFO 23204 --- [analytics-service] [ntainer#1-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-analytics-group-3, groupId=analytics-group] Discovered group coordinator localhost:9092 (id: 2147483646 rack: null)
+2026-06-28T20:02:07.280+05:30  INFO 23204 --- [analytics-service] [ntainer#2-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-analytics-group-1, groupId=analytics-group] Discovered group coordinator localhost:9092 (id: 2147483646 rack: null)
+2026-06-28T20:02:07.282+05:30  INFO 23204 --- [analytics-service] [ntainer#2-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-analytics-group-1, groupId=analytics-group] (Re-)joining group
+2026-06-28T20:02:07.283+05:30  INFO 23204 --- [analytics-service] [ntainer#1-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-analytics-group-3, groupId=analytics-group] (Re-)joining group
+2026-06-28T20:02:07.328+05:30  INFO 23204 --- [analytics-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-analytics-group-2, groupId=analytics-group] Request joining group due to: need to re-join with the given member-id: consumer-analytics-group-2-3853a4ce-7546-4fa8-bf23-2b1a14fb197e
+2026-06-28T20:02:07.328+05:30  INFO 23204 --- [analytics-service] [ntainer#2-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-analytics-group-1, groupId=analytics-group] Request joining group due to: need to re-join with the given member-id: consumer-analytics-group-1-4ab4e8f3-dcb5-4302-9dab-6b07f56aba76
+2026-06-28T20:02:07.328+05:30  INFO 23204 --- [analytics-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-analytics-group-2, groupId=analytics-group] (Re-)joining group
+2026-06-28T20:02:07.329+05:30  INFO 23204 --- [analytics-service] [ntainer#2-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-analytics-group-1, groupId=analytics-group] (Re-)joining group
+2026-06-28T20:02:07.329+05:30  INFO 23204 --- [analytics-service] [ntainer#1-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-analytics-group-3, groupId=analytics-group] Request joining group due to: need to re-join with the given member-id: consumer-analytics-group-3-be3d8b03-b1b6-4a07-9928-bc13df3e08c2
+2026-06-28T20:02:07.329+05:30  INFO 23204 --- [analytics-service] [ntainer#1-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-analytics-group-3, groupId=analytics-group] (Re-)joining group
+2026-06-28T20:02:13.357+05:30  INFO 23204 --- [analytics-service] [ntainer#1-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-analytics-group-3, groupId=analytics-group] Successfully joined group with generation Generation{generationId=1, memberId='consumer-analytics-group-3-be3d8b03-b1b6-4a07-9928-bc13df3e08c2', protocol='range'}
+2026-06-28T20:02:13.357+05:30  INFO 23204 --- [analytics-service] [ntainer#2-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-analytics-group-1, groupId=analytics-group] Successfully joined group with generation Generation{generationId=1, memberId='consumer-analytics-group-1-4ab4e8f3-dcb5-4302-9dab-6b07f56aba76', protocol='range'}
+2026-06-28T20:02:13.357+05:30  INFO 23204 --- [analytics-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-analytics-group-2, groupId=analytics-group] Successfully joined group with generation Generation{generationId=1, memberId='consumer-analytics-group-2-3853a4ce-7546-4fa8-bf23-2b1a14fb197e', protocol='range'}
+2026-06-28T20:02:13.392+05:30  INFO 23204 --- [analytics-service] [ntainer#2-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-analytics-group-1, groupId=analytics-group] Finished assignment for group at generation 1: {consumer-analytics-group-3-be3d8b03-b1b6-4a07-9928-bc13df3e08c2=Assignment(partitions=[invoice-paid-topic-0]), consumer-analytics-group-1-4ab4e8f3-dcb5-4302-9dab-6b07f56aba76=Assignment(partitions=[patient-created-topic-0]), consumer-analytics-group-2-3853a4ce-7546-4fa8-bf23-2b1a14fb197e=Assignment(partitions=[appointment-created-topic-0])}
+2026-06-28T20:02:13.404+05:30  INFO 23204 --- [analytics-service] [ntainer#1-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-analytics-group-3, groupId=analytics-group] Successfully synced group in generation Generation{generationId=1, memberId='consumer-analytics-group-3-be3d8b03-b1b6-4a07-9928-bc13df3e08c2', protocol='range'}
+2026-06-28T20:02:13.406+05:30  INFO 23204 --- [analytics-service] [ntainer#1-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-analytics-group-3, groupId=analytics-group] Notifying assignor about the new Assignment(partitions=[invoice-paid-topic-0])
+2026-06-28T20:02:13.406+05:30  INFO 23204 --- [analytics-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-analytics-group-2, groupId=analytics-group] Successfully synced group in generation Generation{generationId=1, memberId='consumer-analytics-group-2-3853a4ce-7546-4fa8-bf23-2b1a14fb197e', protocol='range'}
+2026-06-28T20:02:13.406+05:30  INFO 23204 --- [analytics-service] [ntainer#2-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-analytics-group-1, groupId=analytics-group] Successfully synced group in generation Generation{generationId=1, memberId='consumer-analytics-group-1-4ab4e8f3-dcb5-4302-9dab-6b07f56aba76', protocol='range'}
+2026-06-28T20:02:13.406+05:30  INFO 23204 --- [analytics-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-analytics-group-2, groupId=analytics-group] Notifying assignor about the new Assignment(partitions=[appointment-created-topic-0])
+2026-06-28T20:02:13.406+05:30  INFO 23204 --- [analytics-service] [ntainer#2-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-analytics-group-1, groupId=analytics-group] Notifying assignor about the new Assignment(partitions=[patient-created-topic-0])
+2026-06-28T20:02:13.409+05:30  INFO 23204 --- [analytics-service] [ntainer#2-0-C-1] k.c.c.i.ConsumerRebalanceListenerInvoker : [Consumer clientId=consumer-analytics-group-1, groupId=analytics-group] Adding newly assigned partitions: patient-created-topic-0
+2026-06-28T20:02:13.409+05:30  INFO 23204 --- [analytics-service] [ntainer#0-0-C-1] k.c.c.i.ConsumerRebalanceListenerInvoker : [Consumer clientId=consumer-analytics-group-2, groupId=analytics-group] Adding newly assigned partitions: appointment-created-topic-0
+2026-06-28T20:02:13.409+05:30  INFO 23204 --- [analytics-service] [ntainer#1-0-C-1] k.c.c.i.ConsumerRebalanceListenerInvoker : [Consumer clientId=consumer-analytics-group-3, groupId=analytics-group] Adding newly assigned partitions: invoice-paid-topic-0
+2026-06-28T20:02:13.421+05:30  INFO 23204 --- [analytics-service] [ntainer#1-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-analytics-group-3, groupId=analytics-group] Found no committed offset for partition invoice-paid-topic-0
+2026-06-28T20:02:13.421+05:30  INFO 23204 --- [analytics-service] [ntainer#2-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-analytics-group-1, groupId=analytics-group] Found no committed offset for partition patient-created-topic-0
+2026-06-28T20:02:13.421+05:30  INFO 23204 --- [analytics-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.ConsumerCoordinator  : [Consumer clientId=consumer-analytics-group-2, groupId=analytics-group] Found no committed offset for partition appointment-created-topic-0
+2026-06-28T20:02:13.437+05:30  INFO 23204 --- [analytics-service] [ntainer#1-0-C-1] o.a.k.c.c.internals.SubscriptionState    : [Consumer clientId=consumer-analytics-group-3, groupId=analytics-group] Resetting offset for partition invoice-paid-topic-0 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:9092 (id: 1 rack: null)], epoch=0}}.
+2026-06-28T20:02:13.437+05:30  INFO 23204 --- [analytics-service] [ntainer#2-0-C-1] o.a.k.c.c.internals.SubscriptionState    : [Consumer clientId=consumer-analytics-group-1, groupId=analytics-group] Resetting offset for partition patient-created-topic-0 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:9092 (id: 1 rack: null)], epoch=0}}.
+2026-06-28T20:02:13.438+05:30  INFO 23204 --- [analytics-service] [ntainer#1-0-C-1] o.s.k.l.KafkaMessageListenerContainer    : analytics-group: partitions assigned: [invoice-paid-topic-0]
+2026-06-28T20:02:13.438+05:30  INFO 23204 --- [analytics-service] [ntainer#2-0-C-1] o.s.k.l.KafkaMessageListenerContainer    : analytics-group: partitions assigned: [patient-created-topic-0]
+2026-06-28T20:02:13.447+05:30  INFO 23204 --- [analytics-service] [ntainer#0-0-C-1] o.a.k.c.c.internals.SubscriptionState    : [Consumer clientId=consumer-analytics-group-2, groupId=analytics-group] Resetting offset for partition appointment-created-topic-0 to position FetchPosition{offset=0, offsetEpoch=Optional.empty, currentLeader=LeaderAndEpoch{leader=Optional[localhost:9092 (id: 1 rack: null)], epoch=0}}.
+2026-06-28T20:02:13.447+05:30  INFO 23204 --- [analytics-service] [ntainer#0-0-C-1] o.s.k.l.KafkaMessageListenerContainer    : analytics-group: partitions assigned: [appointment-created-topic-0]
+2026-06-28T20:06:53.172+05:30  WARN 23204 --- [analytics-service] [l-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@20137c12 (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-06-28T20:07:05.129+05:30  INFO 23204 --- [analytics-service] [rap-executor-%d] c.n.d.s.r.aws.ConfigClusterResolver      : Resolving eureka endpoints via configuration
+2026-06-28T20:07:16.534+05:30  WARN 23204 --- [analytics-service] [l-1:housekeeper] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Failed to validate connection org.postgresql.jdbc.PgConnection@6669cba (This connection has been closed.). Possibly consider using a shorter maxLifetime value.
+2026-06-28T20:07:24.750+05:30  WARN 23204 --- [analytics-service] [onnection-adder] com.zaxxer.hikari.pool.PoolBase          : HikariPool-1 - Pool is empty, failed to create/setup connection (c8420882-4c23-4df1-88cc-5e2ae0a453fd)
+
+org.postgresql.util.PSQLException: FATAL: the database system is in recovery mode
+	at org.postgresql.core.v3.ConnectionFactoryImpl.doAuthentication(ConnectionFactoryImpl.java:704) ~[postgresql-42.7.5.jar:42.7.5]
+	at org.postgresql.core.v3.ConnectionFactoryImpl.tryConnect(ConnectionFactoryImpl.java:213) ~[postgresql-42.7.5.jar:42.7.5]
+	at org.postgresql.core.v3.ConnectionFactoryImpl.openConnectionImpl(ConnectionFactoryImpl.java:268) ~[postgresql-42.7.5.jar:42.7.5]
+	at org.postgresql.core.ConnectionFactory.openConnection(ConnectionFactory.java:54) ~[postgresql-42.7.5.jar:42.7.5]
+	at org.postgresql.jdbc.PgConnection.<init>(PgConnection.java:273) ~[postgresql-42.7.5.jar:42.7.5]
+	at org.postgresql.Driver.makeConnection(Driver.java:446) ~[postgresql-42.7.5.jar:42.7.5]
+	at org.postgresql.Driver.connect(Driver.java:298) ~[postgresql-42.7.5.jar:42.7.5]
+	at com.zaxxer.hikari.util.DriverDataSource.getConnection(DriverDataSource.java:139) ~[HikariCP-6.3.0.jar:na]
+	at com.zaxxer.hikari.pool.PoolBase.newConnection(PoolBase.java:368) ~[HikariCP-6.3.0.jar:na]
+	at com.zaxxer.hikari.pool.PoolBase.newPoolEntry(PoolBase.java:205) ~[HikariCP-6.3.0.jar:na]
+	at com.zaxxer.hikari.pool.HikariPool.createPoolEntry(HikariPool.java:483) ~[HikariCP-6.3.0.jar:na]
+	at com.zaxxer.hikari.pool.HikariPool$PoolEntryCreator.call(HikariPool.java:747) ~[HikariCP-6.3.0.jar:na]
+	at com.zaxxer.hikari.pool.HikariPool$PoolEntryCreator.call(HikariPool.java:726) ~[HikariCP-6.3.0.jar:na]
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642) ~[na:na]
+	at java.base/java.lang.Thread.run(Thread.java:1570) ~[na:na]
+

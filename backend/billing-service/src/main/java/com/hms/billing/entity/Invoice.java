@@ -19,6 +19,9 @@ public class Invoice {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
+    @Column(name = "clinic_id", nullable = false)
+    private String clinicId;
+
     @Column(nullable = false)
     private String patientId;
 

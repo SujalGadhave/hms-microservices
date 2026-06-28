@@ -51,9 +51,10 @@ public class JwtService {
         }
     }
 
-    public String generateAccessToken(String email) {
+    public String generateAccessToken(String email, String role) {
         return Jwts.builder()
                 .subject(email)
+                .claim("role", role)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + accessTokenExpiration))
                 .signWith(getKey(), Jwts.SIG.HS256)

@@ -8,6 +8,7 @@ spring:
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:auth_db}
     username: ${DB_USERNAME:postgres}
+    # [SECURITY] Never commit a real password here. Set DB_PASSWORD as an environment variable.
     password: ${DB_PASSWORD:Sujal@123}
 
   jpa:
@@ -27,6 +28,8 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        max.block.ms: 2000
 
 jwt:
   secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
@@ -34,6 +37,8 @@ jwt:
   refresh-token-expiration: ${JWT_REFRESH_TOKEN_EXPIRATION:604800000}
 
 eureka:
+  instance:
+    prefer-ip-address: true
   client:
     service-url:
       defaultZone: ${EUREKA_DEFAULT_ZONE:http://localhost:8761/eureka}
@@ -46,3 +51,8 @@ management:
   endpoint:
     health:
       show-details: never
+
+security:
+  cors:
+    # Comma-separated list of allowed origins. Override via ALLOWED_ORIGINS env variable in staging/prod.
+    allowed-origins: ${ALLOWED_ORIGINS:http://localhost:5173}

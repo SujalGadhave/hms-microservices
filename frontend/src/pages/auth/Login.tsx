@@ -1,27 +1,40 @@
 import React, { useState } from 'react';
-import { Box, Paper, Typography, TextField, Button, Fade, CircularProgress } from '@mui/material';
+import {
+  Box, Paper, Typography, TextField, Button, Fade, CircularProgress,
+  InputAdornment, IconButton, Alert
+} from '@mui/material';
+import { Visibility, VisibilityOff, LocalHospital } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+
+const ROLE_REDIRECT: Record<string, string> = {
+  ROLE_SUPERADMIN: '/superadmin',
+  ROLE_ADMIN:      '/admin',
+  ROLE_DOCTOR:     '/doctor',
+  ROLE_NURSE:      '/nurse',
+  ROLE_VENDOR:     '/vendor',
+  ROLE_PATIENT:    '/patient',
+};
 
 const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSignIn = async () => {
+    setError('');
     if (!email.trim() || !password.trim()) {
       setError('Email and password are required');
       return;
     }
-    // email format validation
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setError('Enter a valid email address');
       return;
     }
 
     setLoading(true);
-    setError('');
     try {
       const response = await fetch('/api/v1/auth/login', {
         method: 'POST',
@@ -30,20 +43,23 @@ const Login = () => {
       });
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
-        setError(data.message || 'Invalid credentials');
+        setError(data.message || 'Invalid credentials. Please try again.');
         return;
       }
-      const { accessToken, refreshToken } = await response.json();
-      
-      const payload = JSON.parse(atob(accessToken.split('.')[1]));
+      // [SECURITY] Read role/email/name directly from server response — never decode JWT manually.
+      const { accessToken, refreshToken, role, email: userEmail, firstName, lastName } = await response.json();
+
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('refreshToken', refreshToken);
-      localStorage.setItem('userRole', payload.role);
-      localStorage.setItem('userEmail', email);
-      navigate(payload.role === 'ROLE_ADMIN' || payload.role === 'admin' ? '/admin'
-             : payload.role === 'ROLE_DOCTOR' || payload.role === 'doctor' ? '/doctor' : '/patient');
+      localStorage.setItem('userRole', role);
+      localStorage.setItem('userEmail', userEmail);
+      localStorage.setItem('userFirstName', firstName ?? '');
+      localStorage.setItem('userLastName', lastName ?? '');
+
+      const destination = ROLE_REDIRECT[role] ?? '/patient';
+      navigate(destination);
     } catch {
-      setError('Network error. Please try again.');
+      setError('Network error. Please check your connection and try again.');
     } finally {
       setLoading(false);
     }
@@ -54,62 +70,100 @@ const Login = () => {
   };
 
   return (
-    <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'radial-gradient(circle at 50% 50%, #1e293b 0%, #0f172a 100%)' }}>
-      <Fade in={true} timeout={1000}>
-        <Paper sx={{ p: 5, width: '100%', maxWidth: 440, display: 'flex', flexDirection: 'column', gap: 3, position: 'relative', overflow: 'hidden' }}>
-          <Box sx={{ position: 'absolute', top: -50, right: -50, width: 150, height: 150, background: 'rgba(14, 165, 233, 0.2)', filter: 'blur(40px)', borderRadius: '50%' }} />
-          <Box sx={{ position: 'absolute', bottom: -50, left: -50, width: 150, height: 150, background: 'rgba(139, 92, 246, 0.2)', filter: 'blur(40px)', borderRadius: '50%' }} />
-          
-          <Typography variant="h4" sx={{ fontWeight: 700, textAlign: 'center', mb: 1, background: 'linear-gradient(45deg, #0ea5e9, #8b5cf6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-            Welcome Back
-          </Typography>
-          <Typography variant="body2" sx={{ color: '#94a3b8', textAlign: 'center', mb: 2 }}>
-            Access the Astraea Hospital Management System
-          </Typography>
-          
-          <Box component="form" onSubmit={(e: React.FormEvent<HTMLFormElement>) => { e.preventDefault(); handleSignIn(); }} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            <TextField 
-              label="Email Address" 
-              variant="outlined" 
-              fullWidth 
+    <Box sx={{
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: 'radial-gradient(circle at 20% 20%, rgba(139,92,246,0.15) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(14,165,233,0.15) 0%, transparent 50%), #0f172a'
+    }}>
+      <Fade in timeout={800}>
+        <Paper sx={{
+          p: 5, width: '100%', maxWidth: 460,
+          display: 'flex', flexDirection: 'column', gap: 3,
+          position: 'relative', overflow: 'hidden',
+          background: 'rgba(15,23,42,0.8)',
+          border: '1px solid rgba(255,255,255,0.08)',
+          backdropFilter: 'blur(24px)',
+        }}>
+          {/* Glow orbs */}
+          <Box sx={{ position: 'absolute', top: -60, right: -60, width: 180, height: 180, background: 'rgba(14,165,233,0.15)', filter: 'blur(50px)', borderRadius: '50%', pointerEvents: 'none' }} />
+          <Box sx={{ position: 'absolute', bottom: -60, left: -60, width: 180, height: 180, background: 'rgba(139,92,246,0.15)', filter: 'blur(50px)', borderRadius: '50%', pointerEvents: 'none' }} />
+
+          {/* Logo & Title */}
+          <Box sx={{ textAlign: 'center', zIndex: 1 }}>
+            <Box sx={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 56, height: 56, borderRadius: '16px', background: 'linear-gradient(135deg, #0ea5e9, #8b5cf6)', mb: 2, boxShadow: '0 8px 24px rgba(14,165,233,0.35)' }}>
+              <LocalHospital sx={{ color: 'white', fontSize: 30 }} />
+            </Box>
+            <Typography variant="h4" sx={{ fontWeight: 800, background: 'linear-gradient(90deg, #0ea5e9, #8b5cf6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              HMS Portal
+            </Typography>
+            <Typography variant="body2" sx={{ color: '#64748b', mt: 0.5 }}>
+              Hospital Management System — Secure Sign In
+            </Typography>
+          </Box>
+
+          {error && (
+            <Alert severity="error" sx={{ zIndex: 1, bgcolor: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#fca5a5' }}>
+              {error}
+            </Alert>
+          )}
+
+          <Box component="form" onSubmit={(e: React.FormEvent<HTMLFormElement>) => { e.preventDefault(); handleSignIn(); }} sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, zIndex: 1 }}>
+            <TextField
+              id="login-email"
+              label="Email Address"
+              type="email"
+              variant="outlined"
+              fullWidth
+              autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={loading}
               onKeyDown={handleKeyDown}
+              slotProps={{ htmlInput: { 'aria-label': 'Email Address' } }}
             />
-            <TextField 
-              label="Password" 
-              type="password" 
-              variant="outlined" 
-              fullWidth 
+            <TextField
+              id="login-password"
+              label="Password"
+              type={showPassword ? 'text' : 'password'}
+              variant="outlined"
+              fullWidth
+              autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               disabled={loading}
               onKeyDown={handleKeyDown}
-              error={!!error}
-              helperText={error}
-              slotProps={{ htmlInput: { 'aria-label': 'Password', 'aria-describedby': 'login-error' } }}
+              slotProps={{
+                htmlInput: { 'aria-label': 'Password' },
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton onClick={() => setShowPassword(v => !v)} edge="end" sx={{ color: '#64748b' }}>
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  )
+                }
+              }}
             />
-            
-            <Button 
+
+            <Button
+              id="login-submit"
               type="submit"
-              variant="contained" 
-              size="large" 
-              fullWidth 
+              variant="contained"
+              size="large"
+              fullWidth
               disabled={loading}
-              sx={{ mt: 1, py: 1.5, background: 'linear-gradient(45deg, #0ea5e9, #8b5cf6)', position: 'relative' }}
+              sx={{ mt: 1, py: 1.5, background: 'linear-gradient(90deg, #0ea5e9, #8b5cf6)', fontWeight: 700, fontSize: '1rem', '&:hover': { background: 'linear-gradient(90deg, #0284c7, #7c3aed)' } }}
             >
-              {loading ? (
-                <CircularProgress size={24} sx={{ color: 'white' }} />
-              ) : (
-                'Sign In'
-              )}
+              {loading ? <CircularProgress size={24} sx={{ color: 'white' }} /> : 'Sign In'}
             </Button>
-            
-            <Typography variant="body2" sx={{ textAlign: 'center', mt: 1, color: '#94a3b8' }}>
-              Don't have an account?{' '}
-              <Box component="span" onClick={() => navigate('/register')} sx={{ color: '#0ea5e9', cursor: 'pointer', fontWeight: 500, '&:hover': { textDecoration: 'underline', color: '#8b5cf6' } }}>
-                Sign Up
+
+            <Typography variant="body2" sx={{ textAlign: 'center', color: '#64748b' }}>
+              New patient?{' '}
+              <Box component="span" onClick={() => navigate('/register')} sx={{ color: '#0ea5e9', cursor: 'pointer', fontWeight: 600, '&:hover': { color: '#8b5cf6', textDecoration: 'underline' } }}>
+                Create an account
               </Box>
             </Typography>
           </Box>

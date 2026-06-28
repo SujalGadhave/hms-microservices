@@ -1,0 +1,8 @@
+ALTER TABLE users ADD COLUMN clinic_id VARCHAR(255) DEFAULT 'DEFAULT_CLINIC' NOT NULL;
+ALTER TABLE users ALTER COLUMN clinic_id DROP DEFAULT;
+
+CREATE TABLE user_permissions (
+    user_id VARCHAR(255) NOT NULL,
+    permission VARCHAR(255) NOT NULL,
+    CONSTRAINT fk_user_permissions_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+);

@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -32,17 +33,35 @@ public class AuthService {
     private final JwtService jwtService;
     private final AuditEventProducer auditEventProducer;
 
+    /**
+     * Roles that can be self-assigned on the public /register endpoint.
+     * All privileged roles (ADMIN, DOCTOR, NURSE, VENDOR, SUPERADMIN) must be
+     * assigned by an existing admin via the admin API — they cannot self-register.
+     */
+    private static final Set<Role> SELF_REGISTERABLE_ROLES = Set.of(Role.ROLE_PATIENT);
+
     @Transactional
     public AuthResponse register(RegisterRequest registerRequest) {
         if (userRepository.existsByEmail(registerRequest.getEmail())) {
-            // [MEDIUM-37] Was RuntimeException (→500); BusinessException maps to 400 Conflict via GlobalExceptionHandler
-            throw new BusinessException("Email already exists");
+            throw new BusinessException("An account with this email already exists");
+        }
+
+        // [SECURITY] Enforce that public self-registration is PATIENT-only.
+        // If any other role is requested, reject the request.
+        Role requestedRole = (registerRequest.getRole() == null) ? Role.ROLE_PATIENT : registerRequest.getRole();
+        if (!SELF_REGISTERABLE_ROLES.contains(requestedRole)) {
+            throw new BusinessException(
+                "Role '" + requestedRole + "' cannot be self-registered. " +
+                "Contact an administrator to have your account created."
+            );
         }
 
         User user = User.builder()
+                .firstName(registerRequest.getFirstName())
+                .lastName(registerRequest.getLastName())
                 .email(registerRequest.getEmail())
                 .password(passwordEncoder.encode(registerRequest.getPassword()))
-                .role(registerRequest.getRole() == null ? Role.ROLE_PATIENT : registerRequest.getRole())
+                .role(requestedRole)
                 .enabled(true)
                 .createdAt(LocalDateTime.now())
                 .build();
@@ -60,20 +79,65 @@ public class AuthService {
                         .build()
         );
 
-        return generateToken(user.getEmail());
+        return generateToken(user);
+    }
+
+    /**
+     * Admin-only path to create a user with any role.
+     * Called from AdminController which is secured by ROLE_ADMIN or ROLE_SUPERADMIN.
+     */
+    @Transactional
+    public AuthResponse adminCreateUser(RegisterRequest registerRequest) {
+        if (userRepository.existsByEmail(registerRequest.getEmail())) {
+            throw new BusinessException("An account with this email already exists");
+        }
+
+        Role assignedRole = (registerRequest.getRole() == null) ? Role.ROLE_PATIENT : registerRequest.getRole();
+
+        User user = User.builder()
+                .firstName(registerRequest.getFirstName())
+                .lastName(registerRequest.getLastName())
+                .email(registerRequest.getEmail())
+                .password(passwordEncoder.encode(registerRequest.getPassword()))
+                .role(assignedRole)
+                .enabled(true)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        userRepository.save(user);
+
+        auditEventProducer.publish(
+                AuditEvent.builder()
+                        .serviceName("auth-service")
+                        .entityId(user.getEmail())
+                        .action("CREATE")
+                        .performedBy("admin")
+                        .correlationId(UUID.randomUUID().toString())
+                        .details("Admin created user with role " + user.getRole())
+                        .build()
+        );
+
+        // Return the saved user info (no tokens — admin creates accounts, user logs in separately)
+        return AuthResponse.builder()
+                .email(user.getEmail())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .role(user.getRole().name())
+                .build();
     }
 
     @Transactional
     public AuthResponse login(LoginRequest loginRequest) {
         User user = userRepository.findByEmail(loginRequest.getEmail())
-                // [MEDIUM-38] Was RuntimeException (→500); AuthenticationException maps to 401 via GlobalExceptionHandler
-                .orElseThrow(() -> new AuthenticationException("Invalid Credentials"));
+                .orElseThrow(() -> new AuthenticationException("Invalid credentials"));
 
-        boolean matches = passwordEncoder
-                .matches(loginRequest.getPassword(), user.getPassword());
+        if (!user.isEnabled()) {
+            throw new AuthenticationException("Account is disabled. Contact your administrator.");
+        }
 
+        boolean matches = passwordEncoder.matches(loginRequest.getPassword(), user.getPassword());
         if (!matches) {
-            throw new AuthenticationException("Invalid Credentials");
+            throw new AuthenticationException("Invalid credentials");
         }
 
         auditEventProducer.publish(
@@ -87,7 +151,7 @@ public class AuthService {
                         .build()
         );
 
-        return generateToken(user.getEmail());
+        return generateToken(user);
     }
 
     @Transactional
@@ -95,12 +159,16 @@ public class AuthService {
         RefreshToken refreshToken = refreshTokenRepository.findByToken(token)
                 .orElseThrow(() -> new AuthenticationException("Refresh token not found"));
 
-        if (refreshToken.getExpiredAt().isBefore(java.time.LocalDateTime.now(java.time.ZoneOffset.UTC))) {
+        // Use consistent LocalDateTime.now() — no mixing with ZoneOffset.UTC variant
+        if (refreshToken.getExpiredAt().isBefore(LocalDateTime.now())) {
             throw new AuthenticationException("Refresh token has expired");
         }
         if (!jwtService.isValid(token)) {
             throw new AuthenticationException("Refresh token signature is invalid");
         }
+
+        User user = userRepository.findByEmail(refreshToken.getEmail())
+                .orElseThrow(() -> new AuthenticationException("User not found"));
 
         auditEventProducer.publish(
                 AuditEvent.builder()
@@ -113,31 +181,11 @@ public class AuthService {
                         .build()
         );
 
-        return generateToken(refreshToken.getEmail());
-    }
-
-    @Transactional
-    AuthResponse generateToken(String email) {
-        String accessToken = jwtService.generateAccessToken(email);
-        String refreshToken = jwtService.generateRefreshToken(email);
-
-        refreshTokenRepository.deleteByEmail(email);
-        refreshTokenRepository.save(
-                RefreshToken.builder()
-                        .token(refreshToken)
-                        .email(email)
-                        .expiredAt(LocalDateTime.now().plus(Duration.ofMillis(jwtService.getRefreshTokenExpiration())))
-                        .build()
-        );
-
-        return AuthResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
+        return generateToken(user);
     }
 
     /**
-     * [MEDIUM-39] Logout — invalidates the user's refresh token so it cannot be reused.
+     * Logout — invalidates the user's refresh token so it cannot be reused.
      * The access token is short-lived (15 min) and will naturally expire.
      */
     @Transactional
@@ -154,5 +202,34 @@ public class AuthService {
                         .details("User logged out, refresh token revoked")
                         .build()
         );
+    }
+
+    /**
+     * Generates a new access+refresh token pair for a user and returns an enriched
+     * AuthResponse containing role, email, and name — so the frontend never needs to
+     * manually decode the JWT.
+     */
+    private AuthResponse generateToken(User user) {
+        String email = user.getEmail();
+        String accessToken = jwtService.generateAccessToken(email, user.getRole().name());
+        String refreshToken = jwtService.generateRefreshToken(email);
+
+        refreshTokenRepository.deleteByEmail(email);
+        refreshTokenRepository.save(
+                RefreshToken.builder()
+                        .token(refreshToken)
+                        .email(email)
+                        .expiredAt(LocalDateTime.now().plus(Duration.ofMillis(jwtService.getRefreshTokenExpiration())))
+                        .build()
+        );
+
+        return AuthResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .role(user.getRole().name())
+                .email(email)
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .build();
     }
 }

@@ -53,7 +53,7 @@ class AuthServiceApplicationTests {
 
         when(userRepository.existsByEmail("patient@example.com")).thenReturn(false);
         when(passwordEncoder.encode("password")).thenReturn("encoded-password");
-        when(jwtService.generateAccessToken("patient@example.com")).thenReturn("access-token");
+        when(jwtService.generateAccessToken("patient@example.com", "ROLE_PATIENT")).thenReturn("access-token"); // force docker rebuild
         when(jwtService.generateRefreshToken("patient@example.com")).thenReturn("refresh-token");
         when(jwtService.getRefreshTokenExpiration()).thenReturn(60000L);
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
