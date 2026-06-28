@@ -33,3 +33,7 @@ clean_tree_cmd.txt
 clean_tree_utf8.txt
 tree_output.txt
 tree_output_utf8.txt
+
+# Logs
+*.log
+logs/
