@@ -159,5 +159,6 @@ HMS-FULLSTACK/
 ## 📚 Further Documentation
 
 For more detailed information, please refer to the specific module readmes:
+- [Architecture & Roadmap](./ARCHITECTURE.md)
 - [Frontend Documentation](./frontend/README.md)
 - [Backend Documentation](./backend/README.md)
